@@ -1,0 +1,10 @@
+Sample Type	Counts
+Soil	3
+Sediment	25
+Water	20
+Eggs	12
+Tadpole	66
+Metamorph	25
+Subadult	5
+Adult	16
+Total	172

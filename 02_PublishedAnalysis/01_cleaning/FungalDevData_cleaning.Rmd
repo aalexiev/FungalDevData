@@ -1,0 +1,312 @@
+---
+title: "Fungal OTU's across life stages of boreal toad: dataset cleaning"
+author: "Alexandra Alexiev"
+date: "12/17/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(eval = TRUE, # evaluate code chunks
+                      include = TRUE, # include the console output of the code in the final document
+                      echo = TRUE, # include the code that generated the report in the final report
+                      warning = FALSE, # include warnings
+                      message = FALSE, # include console messages
+                      collapse = TRUE, # Merge code blocks and output blocks, if possible.
+                      dpi = 300, # the default figure resolution
+                      out.width = '98%', # the default figure output width
+                      out.height = '98%', # the default figure output height
+                      cache = TRUE) # save the calculations so that kniting is faster each time. (Sometimes this option can cause issues and images won't reflect the most recent code changes, if this happens, just delete the *_cache folder and reknit the code.)
+```
+
+```{r}
+#packages and set working directory
+library(vegan)
+library(ggplot2)
+library(mctoolsr)
+library(tidyr)
+library(dplyr)
+library(gridExtra)
+library(kableExtra)
+library(decontam)
+set.seed(33333)
+work_dir <- "/Users/alal3493/Documents/Projects/DevelopmentalBorealToad/FungalDevData/02_PublishedAnalysis/"
+seq_dir <- "/Users/alal3493/Documents/Projects/DevelopmentalBorealToad/FungalDevData/00_SeqProcessing/"
+```
+
+
+## Load in data, match mapping file samples to OTU table samples
+
+Since USEARCH seq processing filtered out some OTU's (chimeras, mito, chloro, singletons) and samples (too low reads or quality), I want to remove these from my mapping file so it matches the post-seq-processing OTU table. I've commented this whole chunk out because I don't want it to overwrite the files every single time I run or knit this whole notebook.
+
+```{r}
+# map <- read.delim(paste0(seq_dir,"DevelopmentalBorealToad_metadata.txt"), header = T, sep = "\t") # read in original mapping file
+# rownames(map) <- map$X.SampleID # define the rownames
+# head(map)
+# otutab <- read.delim(paste0(seq_dir,"otutab_wTax_noChloroMitoSingl.txt"), header = T, sep = "\t") # read in OTU table post-seq-processing
+# head(otutab)
+# samplestouse <- colnames(otutab) # columns in OTU table are what we want to filter by
+# newmap <- filter(map, rownames(map) %in% samplestouse) # filter the map rows by the above cols
+# head(newmap)
+# dim(otutab)
+# dim(newmap) # check that both dimensions are the same between OTU table and new mapping file
+# what are the samples we dropped from the original mapping file; want to check if it's heavily weighted to one sample type
+# setdiff(samplestouse, rownames(map))
+# the things that don't match are just the OTU ID and taxonomy
+# write.table(newmap,
+#             paste0(work_dir,"01_cleaning/DevelopmentalBorealToad_metadata_USEARCH.txt"),
+#             sep="\t", quote = F, row.names = F)
+# then changed first header column to be "#SampleID" as mctoolsr expects in text editor
+```
+
+
+## Filter data
+
+There are a lot of sample types that won't be useful going forward. 
+
+Some of these were filtered out manually in excel. For example, dead tadpoles or tadpole mouths that were sampled but not part of the hypotheses we have for this paper. Gloves and sterile water were sampled as controls, but had very few OTU's and were actually not adequately replicated to be proper controls (also, the glove was sampled after being used to hold a toad, so this is not a good representation of whether the glove was contaminating toad skin or not).
+
+```{r}
+mapfp <- paste0(work_dir,"01_cleaning/DevelopmentalBorealToad_metadata_USEARCH_V2.txt")
+tabfp <- paste0(seq_dir,"otutab_wTax_noChloroMitoSingl.txt")
+# OTU table used 97% ID OTU picking with UNITE 7.2, filtered for 
+# chimeras, chloroplasts, mitochondria, OTU sequences that only appear twice or less
+input <- load_taxa_table(tab_fp = tabfp, map_fp = mapfp) # this is an mctoolsr package command
+# 372 samples total
+# each part of the "input" list:
+# input$data_loaded -> this is the OTU table 
+# input$map_loaded) -> this is the mapping file
+# input$taxonomy_loaded -> this is the taxonomy of the OTU id's
+
+# filter out two samples were mislabeled during sample processing 
+# and do not actually have data associated with them
+input_f <- filter_data(input = input, filter_cat = "Unique_id_marker", 
+                      filter_vals = c("BTP_226", "BTP_47")) # 370 samples remain
+```
+
+
+## Rarefaction and rarefying
+
+Rarefaction looks at how well we sampled each biom or set of samples. Rarefying then normalizes the number of sequences per sample by subsampling to a predefined number. This normalization step helps deal with sequencing biases. I picked 1030 sequences because some research has shown that anything under 1000 is no longer able to capture the community, and I did not want to throw out too many samples. However, at 1030 sequences, there are rare taxa that are probably not going to be captured during the subsampling. As a result, can only talk about the broad, whole community patterns and patterns to do with dominant groups of fungi, but likely not any rare taxa shifts.
+
+```{r}
+# what should I rarefy to?
+# what about the blanks and controls I had?
+blanks_only <- filter_data(input_f, filter_cat = "Type", keep_vals = c("blank", "control"))
+blanks_sorted <- sort(colSums(blanks_only$data_loaded))
+hist(blanks_sorted)
+tail(blanks_sorted)
+# only NTC7 is high, rest are low
+
+# make file with only OTU and their total counts across all samples
+OTU_counts <- filter_data(input_f, filter_cat = "Type", filter_vals = c("blank", "control"))
+OTU_sorted <- sort(colSums(OTU_counts$data_loaded))
+hist(OTU_sorted, breaks = seq(from=0,to=140000,by=1000))
+abline(v=1030, col="red")
+# rarefy to 1030 seqs
+input_frar <- single_rarefy(input = input_f, depth = 1030) 
+# 173 samples remain
+# order by life stages
+order_list <- c("Water", 
+                "Sediment", "Soil", 
+                "Eggs.11.15", "Tadpole.20.22",
+                "Tadpole.23.25", "Tadpole.25.27",
+                "Tadpole.27.29", "Tadpole.29.31",
+                "Tadpole.31.35", "Tadpole.36.39",
+                "Metamorph.40.46", "Subadult", "Adult", "NA",
+                "NoTemplateControl", "Primer_blank")
+input_frar$map_loaded$Gosner_Stage <- 
+    factor(input_frar$map_loaded$Gosner_Stage, 
+           levels=order_list)
+```
+
+```{r}
+# graph rarefaction curves
+# filter out anything less than 1030 since these won't be in the final analysis
+# with life stage simplified so it fits on the graph
+levels(input_frar$map_loaded$Life_Stage_Simplified) # need 9 colors
+colors_list <- c("darkred", "blue", "green", "black", "orange", "purple", "darkgreen", "hotpink", "grey")
+par(xpd = T, mar = par()$mar + c(0,0,0,10))
+rarecurve(sapply(input_frar$data_loaded, 
+                 function(x) sapply(split(x,input_frar$map_loaded$Life_Stage_Simplified), sum)),
+          step=1,
+          xlab="Number of sequences sampled",
+          ylab="Number of OTUs",
+          label=F,
+          col = colors_list)
+legend(70000, 200, legend = levels(input_frar$map_loaded$Life_Stage_Simplified), 
+       col=colors_list, lty = 1, lwd = 3)
+# save via the export button in RStudio, changed dpi in Preview on Mac
+# return par margins to original settings
+par(mar=c(5, 4, 4, 2) + 0.1)
+```
+
+
+## Check for contamination
+
+Using Decontam package in R, I identified the contaminants in my data. I did this on the non-rarefied data, then filtered the contaminants out of the rarefied data.
+
+```{r}
+mapfp <- paste0(work_dir,"01_cleaning/DevelopmentalBorealToad_metadata_contam.txt")
+tabfp <- paste0(seq_dir,"otutab_wTax_noChloroMitoSingl.txt")
+input <- load_taxa_table(tab_fp = tabfp, map_fp = mapfp) # 224 samples
+
+df <- as.data.frame(input$map_loaded) # Put sample_data into a ggplot-friendly data frame
+df$LibrarySize <- colSums(input$data_loaded) # new row with the library size
+df <- df[order(df$LibrarySize),] # order by library size column
+df$Index <- seq(nrow(df)) # make index column to keep the order from above
+ggplot(data=df, aes(x=Index, y=LibrarySize, color=Type)) + geom_point() +
+    geom_hline(yintercept = 1030, col="red") # line is at what I rarefied to
+# "life" is toad samples, "env" is environment samples
+
+# frequency method (uses relative abundance)
+otu_tab <- t(data.matrix(input$data_loaded))
+contamdf.freq <- isContaminant(otu_tab, method="frequency",
+                               conc=input$map_loaded$quant_reading)
+head(contamdf.freq)
+table(contamdf.freq$contaminant) # true = number of contaminants; 23 here
+head(which(contamdf.freq$contaminant)) # the row index of the contaminants (so the highest is the 51st most abundant thing)
+otu_names <- row.names(contamdf.freq)
+i <- which(contamdf.freq$contaminant)
+taxnames <- row.names(contamdf.freq[i,]) # these are the OTU names (rownames) of the contaminants
+plot_frequency(otu_tab, taxnames, conc=input$map_loaded$quant_reading, facet=T) + 
+    xlab("DNA Concentration (PicoGreen fluorescent intensity)") 
+# the only two I miiiight not trust of these is OTU_21 and OTU_54 because of the huge variation across the red dotted line (best fit line to determine if contaminant)
+input$taxonomy_loaded["OTU_21",] #this one is a plant-associated microbe, so might not actually be contaminant
+input$taxonomy_loaded["OTU_54",] #this one is an indoor environment microbe, so makes sense
+
+
+# try prevalence method (presence/absence)
+# make new column with logical for control or not control
+input$map_loaded$is.neg <- input$map_loaded$Type == "control"
+contamdf.prev <- isContaminant(otu_tab, method="prevalence", neg=input$map_loaded$is.neg)
+table(contamdf.prev$contaminant) # less things got pulled out
+y <- which(contamdf.prev$contaminant)
+taxnames2 <- row.names(contamdf.prev[y,])
+# did this frequency plot even though it's prevalence because it's more intuitive to check distribution
+plot_frequency(otu_tab, taxnames2, conc=input$map_loaded$quant_reading, facet=T) +
+    xlab("DNA Concentration (PicoGreen fluorescent intensity)") 
+
+# compare the two methods
+intersect(taxnames, taxnames2) 
+# going to keep OTU_21 a contaminant since it's pulled out by both methods
+setdiff(taxnames, taxnames2)
+setdiff(taxnames2, taxnames)
+
+#Combine the lists
+full_contam_taxlist <- unique(c(taxnames, taxnames2))
+# filter out of rarefied input
+input_frar_clean <- filter_taxa_from_input(input_frar, 
+                                           taxa_IDs_to_remove = full_contam_taxlist)
+# 25 taxa removed (some were already removed in past filtering steps)
+# make a table of all the taxonomic names of these isolates
+input_contams <- filter_taxa_from_input(input_frar, 
+                                           taxa_IDs_to_keep = full_contam_taxlist)
+taxons <- input_contams$taxonomy_loaded
+contams_table <- data.frame(OTU_id=rownames(taxons), 
+                            Taxonomy=paste0(taxons$taxonomy1,"; ",taxons$taxonomy2,"; ",taxons$taxonomy3,"; ",taxons$taxonomy4,"; ",taxons$taxonomy5,"; ",taxons$taxonomy6,"; ",taxons$taxonomy7,"; "))
+kable(contams_table) %>% 
+    kable_styling(bootstrap_options = c("striped","bordered"), 
+                  full_width = F, position = "left")
+# write.table(contams_table,
+#             paste0(work_dir,"Figs_Tables/contam_names.txt"),
+#             sep = "\t", quote = F, row.names=F)
+```
+
+
+## Filtering and Basic measures of dominant taxa
+
+Now I need to filter my data into two useful subsets that I'll be using in future analsyses: one with only the toad samples and one with both toad and environmental samples
+
+```{r}
+# filter so only life stage data
+input_frar_lifeonly <- filter_data(input = input_frar_clean,
+                         filter_cat = "Gosner_Stage",
+                         filter_vals = c("Water", "Sediment", "Soil",
+                                         "Primer_blank" ,"NoTemplateControl", "NA"))
+# 124 samples remaining
+# order by life stage
+life_list <- c("Eggs.11.15", "Tadpole.20.22",
+                      "Tadpole.23.25", "Tadpole.25.27",
+                      "Tadpole.27.29", "Tadpole.29.31",
+                      "Tadpole.31.35", "Tadpole.36.39",
+                      "Metamorph.40.46", "Subadult", "Adult")
+input_frar_lifeonly$map_loaded$Gosner_Stage <-
+    factor(input_frar_lifeonly$map_loaded$Gosner_Stage,
+           levels=life_list)
+# save this file
+# export_taxa_table(input_frar_lifeonly, paste0(work_dir,"Toad_clean_otutab.txt"),
+#                   paste0(work_dir,"Toad_clean_maptab.txt"))
+
+# filter so only life stages and env data
+input_frar_lifeenv <- filter_data(input = input_frar_clean,
+                                  filter_cat = "Gosner_Stage",
+                                  filter_vals = c("Primer_blank" ,"NoTemplateControl", "NA"))
+# 172 samples remaining
+# order by env then life stages
+lifeenv_list2 <- c("Soil", "Sediment", "Water", "Eggs",
+                   "Tadpole", "Metamorph", "Subadult", "Adult")
+input_frar_lifeenv$map_loaded$Life_Stage_Simplified <-
+    factor(input_frar_lifeenv$map_loaded$Life_Stage_Simplified,
+           levels=lifeenv_list2)
+# export_taxa_table(input_frar_lifeenv, paste0(work_dir,"Allsamps_clean_otutab.txt"),
+#                   paste0(work_dir,"Allsamps_clean_maptab.txt"))
+
+# number of sequences total after rarefaction
+sum(colSums(input_frar_lifeenv$data_loaded)) # 171724
+
+# number of OTU's in this file
+nrow(input_frar_lifeenv$taxonomy_loaded) # 2243
+
+# sample sizes table
+samp_sizes <- input_frar_lifeenv$map_loaded %>%
+  group_by(Life_Stage_Simplified) %>%
+  summarise(Counts=n()) %>% # find counts for the group_by variable, colname is "Counts"
+  rename(`Sample Type` = Life_Stage_Simplified) %>% # rename Life_Stage_Simplified col
+  slice(match(lifeenv_list2, `Sample Type`)) %>% # reorder Sample Type col by custom list
+  bind_rows(summarise_all(., funs(if(is.numeric(.)) sum(.) else "Total")))
+kable(samp_sizes) %>% 
+    kable_styling(bootstrap_options = c("striped","bordered"), 
+                  full_width = F, position = "left")
+# write.table(samp_sizes,
+#             paste0(work_dir,"Figs_Tables/samp_sizes.txt"),
+#             sep = "\t", quote = F, row.names=F)
+```
+
+
+## Can we lump tadpoles together?
+
+This dataset has high resolution between tadpole groups. Preliminary analyses show that some of these may or may not be entirely similar to each other in their fungal communities. Here, I evaluated whether Pairwise permanova was significant with Bonferroni (p <= 0.091) and FDR (p <= 0.05) correction methods; in general, both correction methods were fairly similar in their results and tadpoles could be lumped.
+
+```{r}
+# Calculate dissimilarities between life stages
+dm_rel <- convert_to_relative_abundances(input_frar_lifeenv) # relativize species matrix first
+dm_lifeenv <- calc_dm(dm_rel$data_loaded, method = "bray") # calc bray-curtis distance between communities, with square root transformation
+
+# Do pairwise PERMANOVA
+PW_PERM_lifeenv <- calc_pairwise_permanovas(dm_lifeenv, 
+                                              metadata_map = input_frar_lifeenv$map_loaded, 
+                                              compare_header = "Gosner_Stage")
+PW_PERM_lumpq <- PW_PERM_lifeenv %>%
+  arrange(pvalBon, pvalFDR) %>%
+  filter(pvalBon <= 0.09100) %>%
+  filter(pvalFDR <= 0.05)
+# write.table(PW_PERM_lumpq, paste0(work_dir,"Figs_Tables/PW_PERM.txt"), sep="\t")
+
+# plot dendrogram to visualize mean dissimilarities between sample types
+dm_mean <- calc_mean_dissimilarities(dm_lifeenv, 
+                                    metadata_map = input_frar_lifeenv$map_loaded,
+                                    summarize_by_factor = "Gosner_Stage",
+                                    return_map = T)
+dendro_x <- mctoolsr::plot_dendrogram(dm_mean$dm_loaded, 
+                                      dm_mean$map_loaded,
+                                      labels="Gosner_Stage",
+                                      color_by = "Life_Stage_Simplified",
+                                      method = "average") +
+  labs(color="Sample Type")
+dendro_x
+# result: seems like tadpoles can either all be lumped together or into EarlyandMid/Late clumps
+
+# make paneled figure with table and graph
+grid.arrange(tableGrob(PW_PERM_lumpq), dendro_x, ncol=2)
+# saved through export button in Rstudio
+```
