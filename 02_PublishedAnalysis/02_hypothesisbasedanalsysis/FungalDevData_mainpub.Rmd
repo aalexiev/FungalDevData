@@ -27,11 +27,11 @@ library(mctoolsr)
 library(tidyr)
 library(tibble)
 library(gridExtra)
-library(indicspecies)
 library(dplyr)
 library(ggpubr)
 library(cowplot)
 library(kableExtra)
+library(RColorBrewer)
 set.seed(33333)
 work_dir <- "/Users/alal3493/Documents/Projects/DevelopmentalBorealToad/FungalDevData/02_PublishedAnalysis/"
 seq_dir <- "/Users/alal3493/Documents/Projects/DevelopmentalBorealToad/FungalDevData/00_SeqProcessing/"
@@ -171,6 +171,7 @@ lifeshan <- ggplot(input_all$map_loaded, aes(Gosner_Stage, shannon)) +
         axis.line = element_line(colour = "black"))
 
 alpha_panel <- grid.arrange(liferich, lifesimp, lifeshan, ncol = 3)
+alpha_panel
 # ggsave(paste0(work_dir,"Figs_Tables/AllAlphaDiv.png"), alpha_panel, dpi=300,
 #        width=10, height=7)
 ```
@@ -228,10 +229,15 @@ OTUrich <- ggplot(input_all$map_loaded, aes(Gosner_Stage, rich)) +
   )) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, colour = "black"),
         axis.text.y = element_text(colour = "black"),
+        axis.title = element_text(size=16),
+        axis.text = element_text(size=14),
+        legend.title = element_text(size=16),
+        legend.text = element_text(size=14),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         panel.background = element_blank(),
         axis.line = element_line(colour = "black"),
+        plot.title = element_text(size = 30),
         legend.position="none") +
   labs(fill="Sample Type") +
   scale_fill_manual(values=samptype_cols) +
@@ -294,7 +300,8 @@ nmds.plot <- ggplot(md.nmds.metadata, aes(x = MDS1, y = MDS2, shape = Type,
   theme(axis.title = element_text(size=16),
         axis.text = element_text(size=14),
         legend.title = element_text(size=16),
-        legend.text = element_text(size=14))
+        legend.text = element_text(size=14),
+        plot.title = element_text(size = 30))
 
 
 # Make dispersion graph
@@ -325,10 +332,15 @@ disper_bars <- ggplot(data=Disper2, aes(x=Life_Stage_Simplified, y=dispers)) +
   )) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, colour = "black"),
         axis.text.y = element_text(colour = "black"),
+        axis.title = element_text(size=16),
+        axis.text = element_text(size=14),
+        legend.title = element_text(size=16),
+        legend.text = element_text(size=14),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         panel.background = element_blank(),
-        axis.line = element_line(colour = "black")) +
+        axis.line = element_line(colour = "black"),
+        plot.title = element_text(size = 30)) +
   labs(fill="Sample Type") +
   scale_fill_manual(values=samptype_cols)
 legend <- arrangeGrob(get_legend(disper_bars))
@@ -338,9 +350,10 @@ disper_bars_noleg <- disper_bars + theme(legend.position = "none")
 # Put all into paneled graph with annotations and shared legend
 diversity_fig <- ggpubr::ggarrange(arrangeGrob(OTUrich, disper_bars_noleg), 
                               legend, nmds.plot, ncol=3, 
-               widths=c(4,1,9))
-# ggsave(paste0(work_dir,"Figs_Tables/FungDivFig.png"), diversity_fig, dpi=400,
-#        width=14, height=7)
+               widths=c(4.5,1.5,9))
+diversity_fig
+ggsave(paste0(work_dir,"Figs_Tables/FungDivFig.png"), diversity_fig, dpi=800,
+       width=16, height=7)
 ```
 
 ## Permanova for the above plot
@@ -353,7 +366,7 @@ kable(Perm$aov.tab) %>%
   kable_styling(bootstrap_options = c("striped","bordered"), 
                 full_width = F, position = "left")
 
-#also show the pairwise PERMANOVA
+# also show the pairwise PERMANOVA
 pw_perm <- read.delim(paste0(work_dir,"Figs_Tables/PW_PERM.txt"))
 kable(pw_perm) %>%
   kable_styling(bootstrap_options = c("striped","bordered"), 
@@ -364,6 +377,210 @@ kable(pw_perm) %>%
 # Q2: Are there transient versus symbiotic OTU's on boreal toad skin?
 
 Which fungi are more likely to be symbionts in that they are associated with the host as opposed to transiently moving through the host system?
+
+To answer this question, I'm using ANCOM, an indicator species analysis for microbial sequence datasets.
+- Uses log-ratio transformation to somewhat account for compositionality of the data, which helps decrease the false discovery rate.
+- Uses K-W and wilcoxon tests to determine significance.
+- Seems to be more stringent than other methods, like LEfSe or macroecology indicator species analysis, in terms of how many OTU's pass the thresholds.
+- Does not need rarefied data, but I am using my rarefied data here.
+- ANCOM is running a bunch of pairwise tests and the W stat is how many of those pairwise tests passed the "significance" threshold set in the initial script when I ran it.
+
+## Run ANCOM
+```{r}
+# Ancom needs Sample.ID to be the header starting at A1, which means changing it in both files and transposing the taxa table.
+# export_taxa_table(input = input_all, "taxa_table_ancom.txt", "map_ancom.txt")
+# Did changes in excel, and changed OTU ID's to have the taxonomy and OTU # (for future reference)
+
+# re-read in clean files
+OTU_ancom <- read.delim(paste0(work_dir,"02_hypothesisbasedanalsysis/otu_ancom.txt"),
+                          sep = "\t", header = T)
+map_ancom <- read.delim(paste0(work_dir,"02_hypothesisbasedanalsysis/map_ancom.txt"),
+                        sep = "\t", header = T)
+
+# source the code, downloaded from: https://github.com/mech3132/MSC_code/blob/master/ANCOM_updated_code_MYC.R
+source(paste0(work_dir,"02_hypothesisbasedanalsysis/ANCOM_updated_code_MYC.R"))
+
+#   1) using just sample type as life or env
+# run ancom with parameters for no repeated data, no adjustment (so it'll use a Wilcoxon test)
+comparison_test_lifeenv <- ANCOM.main.myc(OTUdat = OTU_ancom,
+                                      Vardat = map_ancom,
+                                      adjusted = F,
+                                      repeated = F,
+                                      main.var = "Type",
+                                      adj.formula = NULL,
+                                      repeat.var = NULL,
+                                      longitudinal = F,
+                                      random.formula = NULL,
+                                      multcorr = 2,
+                                      sig = 0.05,
+                                      prev.cut = 0.90)
+
+# This tells you if your data has a lot of zeroes/skew, as most microbial data do.
+# everything below the red line gets removed.
+comparison_test_lifeenv$PLot.zeroes
+# This tells you which (colored) OTU's have a high effect size and significance
+comparison_test_lifeenv$Plot.volcano
+comparison_test_lifeenv$Plot.volcano.0.9
+# this helps you determine if the critical w was chosen correctly. We want the valley between a bimodal distribution, in theory.
+comparison_test_lifeenv$Plot.critical.w 
+# I think W=~20 actually would be better, especially with the clumping of the points in the previous plots. I'll take this into account in the write out file.
+# write.table(comparison_test_lifeenv$W.taxa, paste0(work_dir,"02_hypothesisbasedanalsysis/indic_taxabunds_lifeenv.txt"), sep="\t", quote=F)
+
+#   2) ANCOM so that each life stage gets compared individually to each environmental sample type. Caveat: this uses a Kruskall-Wallis test so it's not a pairwise comparison (i.e. it won't identify OTU's that are different between e.g. water and tadpole)
+comparison_test_lifestages <- ANCOM.main.myc(OTUdat = OTU_ancom,
+                                      Vardat = map_ancom,
+                                      adjusted = F,
+                                      repeated = F,
+                                      main.var = "Life_Stage_Simplified",
+                                      adj.formula = NULL,
+                                      repeat.var = NULL,
+                                      longitudinal = F,
+                                      random.formula = NULL,
+                                      multcorr = 2,
+                                      sig = 0.05,
+                                      prev.cut = 0.90)
+# write.table(comparison_test_lifestages$W.taxa, paste0(work_dir,"02_hypothesisbasedanalsysis/indic_taxabundsnew.txt"), sep="\t", quote=F)
+```
+
+## Graph Volcano plot
+```{r}
+#make a volcano plot showing the associated microbes
+otu.names <- comparison_test_lifeenv$W.taxa$otu.names
+W_stat <- comparison_test_lifeenv$W.taxa$W_stat
+W_f <- comparison_test_lifeenv$W.taxa$W_f
+W_frame <- data.frame(otu.names,W_stat,W_f,row.names=NULL)
+# in excel, add column for whether they are transient, fac, obl; read in that file
+# write.table(W_frame, paste0(work_dir,"Figs_Tables/Volcano_plot/volcano_plot.txt"), sep="\t")
+W_frame_V2 <- read.delim(paste0(work_dir,"Figs_Tables/Volcano_plot/volcano_plot_V2.txt"))
+
+26-(26-18)/2 # want to put interept between 18 and 26 because everything 26+ is significant and 18 and less is not
+# figure out order of ecol for legend
+Ecol_list <- c("Obligate", "Facultative", "Transient", "Transient, not significant")
+W_frame_V2$Ecol <- factor(W_frame_V2$Ecol, levels=Ecol_list)
+# graph volcano plot
+volcano.plot <- ggplot(W_frame_V2) +
+  geom_point(aes(x=W_f, y=W_stat, color=Ecol)) +
+  xlab("CLR F statistic (Effect size)") +
+  ylab("W statistic") +
+  labs(color = "") +
+  scale_color_manual(values=c("#0072B2","#56B4E9", "#CC79A7", "#000000"))+ 
+  geom_hline(mapping=aes(yintercept=22), col="red", lty=2)
+volcano.plot
+# ggsave(paste0(work_dir,"Figs_Tables/Volcano_plot/volcano_plot_color.png"),
+#        volcano.plot, dpi=400, width=7, height=5)
+```
+
+## Graph relative abundances for significant fungal OTU's
+I used excel to clean up the output file "indic_taxabunds_lifeenv.txt" (ANCOM output file) into "indic_taxabunds.txt" which has the information I need moving forward.
+```{r}
+# read in cleaned up file with relative abundances
+indic_abunds <- read.delim(paste0(work_dir,"02_hypothesisbasedanalsysis/indic_taxabunds.txt"), header=T) %>%
+  gather(key="Sample.Type", value="Taxon.Relative.Abundance", -c("OTU","Ecol")) %>%
+  mutate(Type=case_when(Sample.Type=="Soil" ~ "Environment",
+                        Sample.Type=="Sediment" ~ "Environment",
+                        Sample.Type=="Water" ~ "Environment", 
+                       Sample.Type=="Eggs" ~ "Toad",
+                       Sample.Type=="Tadpole" ~ "Toad", 
+                       Sample.Type=="Metamorph" ~ "Toad", 
+                       Sample.Type=="Subadult" ~ "Toad", 
+                       Sample.Type=="Adult" ~ "Toad"))
+indic_abunds$Sample.Type <-
+    factor(indic_abunds$Sample.Type,
+           levels=c("Soil", "Sediment", "Water", "Eggs", "Tadpole",
+                    "Metamorph", "Subadult", "Adult"))
+
+# make three sets of faceted graphs and put on a plot together
+obl_abunds <- dplyr::filter(indic_abunds, Ecol == "Obligate")
+fac_abunds <- dplyr::filter(indic_abunds, Ecol=="Facultative")
+tran_abunds <- dplyr::filter(indic_abunds, Ecol=="Transient")
+Obl_g <- ggplot(obl_abunds, aes(x=Sample.Type, y=Taxon.Relative.Abundance, 
+                           group=OTU, fill=Type)) +
+  geom_bar(stat="identity") +
+  xlab("") + ylab("") +
+  scale_fill_manual(values=c("#548235", "#C55A11"), name="Sample Type") +
+  theme(axis.text.x=element_text(angle=90, hjust=1, size=20), 
+        axis.title = element_text(size=30),
+        axis.text.y=element_text(size=20),
+        strip.text = element_text(size = 20),
+        legend.position = "none") +
+  facet_wrap(~OTU, scales="free_y", ncol=3, labeller = label_wrap_gen(width=15))
+Fac_g <- ggplot(fac_abunds, aes(x=Sample.Type, y=Taxon.Relative.Abundance, 
+                           group=OTU, fill=Type)) +
+    geom_bar(stat="identity") +
+    xlab("") + ylab("Taxon Relative Abundance") + 
+    scale_fill_manual(values=c("#548235", "#C55A11"), name="Sample Type") +
+    theme(axis.text.x=element_text(angle=90, hjust=1, size=20), 
+          axis.title = element_text(size=30),
+          axis.text.y=element_text(size=20),
+          strip.text = element_text(size = 20),
+          legend.title = element_text(size=30),
+          legend.text = element_text(size=20)) +
+    facet_wrap(~OTU, scales="free_y", ncol=3, labeller = label_wrap_gen(width=15))
+Tran_g <- ggplot(tran_abunds, aes(x=Sample.Type, y=Taxon.Relative.Abundance, 
+                           group=OTU, fill=Type)) +
+    geom_bar(stat="identity") +
+    xlab("") + ylab("") + 
+    scale_fill_manual(values=c("#548235", "#C55A11"), name="Sample Type") +
+    theme(axis.text.x=element_text(angle=90, hjust=1, size=20), 
+          axis.title = element_text(size=30),
+          axis.text.y=element_text(size=20),
+          strip.text = element_text(size = 20),
+          legend.position = "none") +
+    facet_wrap(~OTU, scales="free_y", ncol=3, labeller = label_wrap_gen(width=15))
+Obl_g; Fac_g; Tran_g
+# pull out the legend (same one for all of the graphs)
+legend_abund <- arrangeGrob(get_legend(Fac_g))
+# ggsave(paste0(work_dir,"Figs_Tables/Symbionts_fig/legend_abund.png"), legend_abund, dpi=400,
+#        width=3, height=3)
+Facg_noleg <- Fac_g + theme(legend.position = "none")
+
+#save all these graphs and rearrange how I want them in powerpoint
+# ggsave(paste0(work_dir,"Figs_Tables/Symbionts_fig/obl_graph.png"),
+#        Obl_g, dpi=400, width=12, height=4.5)
+# ggsave(paste0(work_dir,"Figs_Tables/Symbionts_fig/fac_graph.png"),
+#        Facg_noleg, dpi=400, width=12, height=7)
+# ggsave(paste0(work_dir,"Figs_Tables/Symbionts_fig/tran_graph.png"),
+#        Tran_g, dpi=400, width=12, height=4.5)
+# Assembled these files into the published graph using powerpoint
+```
+
+
+## Miscellaneous
+
+Here, I'm making a graph showing where certain sample types fell out in the various processing steps.
+
+```{r}
+drops <- read.delim(paste0(work_dir,"Figs_Tables/Metadata_dropouts_R.txt"))
+
+#reorder the axes
+all_sampletypes <- c("Upland_Soil", "Sediment", "Water", "Egg", "Tadpole", "Metamorph", "Subadult", "Adult", "Mouth", "Tadpole_Dead", "Glove", "Sterile_water", "NoTemplateControl")
+drops$Life_Stage_Simplified <- factor(drops$Life_Stage_Simplified, 
+                                      levels=all_sampletypes)
+madetosteplist <- c("noDNA", "filtSeq", "filtR", "Final")
+drops$Made_to_step <- factor(drops$Made_to_step, levels=madetosteplist)
+
+#make graph
+drop_graph <- ggplot(drops, aes(fill=Life_Stage_Simplified, 
+                                x=Made_to_step)) +
+  geom_bar(position="dodge", stat="count") +
+  labs(fill="Sample Type", x="Reasons for samples dropping out",
+       y="Count") +
+  scale_x_discrete(labels=c("PCR did not amplify target gene",
+                            "Filtered during sequence processing 
+                            (low reads or quality)",
+                            "Filtered during R analysis 
+                            (some sample types not useful 
+                            for answering hypotheses)",
+                            "Final dataset")) +
+  theme(axis.text.x = element_text(angle=0, hjust=0.5, size=14),
+        axis.title = element_text(size=16),
+        axis.text.y = element_text(size=14),
+        legend.text = element_text(size=14),
+        legend.title = element_text(size=16))
+drop_graph
+# ggsave("drop_graph.jpg", drop_graph, width=21, height=10)
+```
+
 
 
 
