@@ -32,6 +32,7 @@ library(ggpubr)
 library(cowplot)
 library(kableExtra)
 library(RColorBrewer)
+library(BiodiversityR)
 set.seed(33333)
 work_dir <- "/Users/alal3493/Documents/Projects/DevelopmentalBorealToad/FungalDevData/02_PublishedAnalysis/"
 seq_dir <- "/Users/alal3493/Documents/Projects/DevelopmentalBorealToad/FungalDevData/00_SeqProcessing/"
@@ -453,7 +454,7 @@ W_frame <- data.frame(otu.names,W_stat,W_f,row.names=NULL)
 # write.table(W_frame, paste0(work_dir,"Figs_Tables/Volcano_plot/volcano_plot.txt"), sep="\t")
 W_frame_V2 <- read.delim(paste0(work_dir,"Figs_Tables/Volcano_plot/volcano_plot_V2.txt"))
 
-26-(26-18)/2 # want to put interept between 18 and 26 because everything 26+ is significant and 18 and less is not
+26-(26-18)/2 # want to put interept between 18 and 26 because W=26+ is significant and 18 and less is not
 # figure out order of ecol for legend
 Ecol_list <- c("Obligate", "Facultative", "Transient", "Transient, not significant")
 W_frame_V2$Ecol <- factor(W_frame_V2$Ecol, levels=Ecol_list)
@@ -544,6 +545,120 @@ Facg_noleg <- Fac_g + theme(legend.position = "none")
 # Assembled these files into the published graph using powerpoint
 ```
 
+As an extension of the above graph, make a rank abundance based plot using the data, since ANCOM is actually using rank abundances to identify indicator OTU's
+```{r}
+# creat a data frame with the abundance values from ANCOM (ANCOM caluclated these)
+abund_ENV <- comparison_test_lifeenv$W.taxa$env_relAbund
+abund_TOAD <- comparison_test_lifeenv$W.taxa$life_relAbund
+otu.names <- comparison_test_lifeenv$W.taxa$otu.names
+W_stat <- comparison_test_lifeenv$W.taxa$W_stat
+relabunds_ANCOM <- data.frame(otu.names, abund_ENV, abund_TOAD, W_stat)
+
+# calculate rank abundance in Toad samples of each OTU
+order.abund_TOAD <- order(relabunds_ANCOM$abund_TOAD,relabunds_ANCOM$otu.names)
+relabunds_ANCOM$rank_TOAD <- NA # add as new column for plotting
+relabunds_ANCOM$rank_TOAD[order.abund_TOAD] <- 1:nrow(relabunds_ANCOM)
+
+# calculate rank abundance in Environmental samples of each OTU
+order.abund_ENV <- order(relabunds_ANCOM$abund_ENV,relabunds_ANCOM$otu.names)
+relabunds_ANCOM$rank_ENV <- NA # add as new column for plotting
+relabunds_ANCOM$rank_ENV[order.abund_ENV] <- 1:nrow(relabunds_ANCOM)
+
+# filter only significant OTU's (those with W stat greater than 26)
+sign_ANCOM_rankabunds <- relabunds_ANCOM %>%
+  dplyr::filter(W_stat >= 26)
+
+# plot significant ANCOM data
+# rank abundance plot of just the OTU's in toads
+rank_toads <- ggplot(sign_ANCOM_rankabunds) + 
+  geom_point(aes(x=rank_TOAD, y=abund_TOAD, color=otu.names)) +
+  xlab("rank abundance on toad samples") +
+  ylab("relative abundance on toad samples")
+
+# rank abundance plot of just the OTU's in env
+rank_env <- ggplot(sign_ANCOM_rankabunds) + 
+  geom_point(aes(x=rank_ENV, y=abund_ENV, color=otu.names)) +
+  xlab("rank abundance on environmental samples") +
+  ylab("relative abundance on environmental samples")
+
+# rank abundance of each of toad and env on same graph
+rank_plot <- ggplot(sign_ANCOM_rankabunds) + 
+  geom_point(aes(x=rank_ENV, y=rank_TOAD, color=otu.names)) +
+  xlab("rank abundance on environmental samples") +
+  ylab("rank abundance on toad samples")
+
+
+## this isn't actually showing what I thiiiink it's showing, try OPTION 2
+# try it by calculating relative then rank abundance for each OTU in the whole dataset
+# relative abundance in toad samples
+spe <- t(input_toad$data_loaded)
+spe.pres <- apply(spe > 0, 2, sum)
+spe.relf <- 100*spe.pres/nrow(spe)
+
+# filter input all for only env samples
+input_env <- filter_data(input_all, filter_cat = "Type", 
+                      filter_vals = "life") #48 samples remaining
+# relative abundance in env samples
+spe2 <- t(input_env$data_loaded)
+spe.pres2 <- apply(spe2 > 0, 2, sum)
+spe.relf2 <- 100*spe.pres2/nrow(spe2)
+
+# clean up data
+spe_rel_t <- spe.relf %>%
+  as.data.frame() %>%
+  rownames_to_column(var = "otu.name")
+names(spe_rel_t)[2] <- "rel_abund_toad" # name the second column something
+spe_rel_e <- spe.relf2 %>%
+  as.data.frame() %>%
+  rownames_to_column(var = "otu.name")
+names(spe_rel_e)[2] <- "rel_abund_env"
+merged_spe <- merge(spe_rel_t, spe_rel_e, by="otu.name")
+
+# calculate rank abundance in Toad samples of each OTU
+order.abund_TOAD <- order(merged_spe$rel_abund_toad,as.vector(merged_spe$otu.name))
+merged_spe$rank_abund_toad <- NA # add as new column for plotting
+merged_spe$rank_abund_toad[order.abund_TOAD] <- 1:nrow(merged_spe)
+
+# calculate rank abundance in Environmental samples of each OTU
+order.abund_ENV <- order(merged_spe$rel_abund_env,as.vector(merged_spe$otu.name))
+merged_spe$rank_abund_env <- NA # add as new column for plotting
+merged_spe$rank_abund_env[order.abund_ENV] <- 1:nrow(merged_spe)
+
+
+# filter out only the OTU names and relative abundance data
+list_OTUs <- list("OTU_15", "OTU_166", "OTU_73", "OTU_1", "OTU_25",
+                  "OTU_4", "OTU_58", "OTU_34", "OTU_8", "OTU_99",
+                  "OTU_3", "OTU_177", "OTU_92", "OTU_79", "OTU_148",
+                  "OTU_34", "OTU_81", "OTU_14", "OTU83", "OTU_166",
+                  "OTU_9")
+merged_filt_spe <- merged_spe %>%
+  dplyr::filter(otu.name %in% list_OTUs)
+
+# plot significant ANCOM data
+# rank abundance plot of just the OTU's in toads
+rank_toads <- ggplot(merged_filt_spe) + 
+  geom_point(aes(x=rank_abund_toad, y=rel_abund_toad, color=otu.name)) +
+  xlab("rank abundance on toad samples") +
+  ylab("relative abundance on toad samples")
+
+# rank abundance plot of just the OTU's in env
+rank_env <- ggplot(merged_filt_spe) + 
+  geom_point(aes(x=rank_abund_env, y=rel_abund_env, color=otu.name)) +
+  xlab("rank abundance on environmental samples") +
+  ylab("relative abundance on environmental samples")
+
+# rank abundance of each of toad and env on same graph
+rank_plot <- ggplot(merged_filt_spe) + 
+  geom_point(aes(x=rank_abund_env, y=rank_abund_toad, color=otu.name)) +
+  xlab("rank abundance on environmental samples") +
+  ylab("rank abundance on toad samples") +
+  xlim(0,550) + ylim(0,550) +
+  geom_abline(intercept=0, slope=1, color="red", linetype="dashed")
+
+ggsave(paste0(work_dir,"Figs_Tables/Symbionts_fig/rank_dotplot.png"), rank_plot, dpi=300,
+        width=10, height=7)
+```
+
 
 ## Miscellaneous
 
@@ -580,7 +695,6 @@ drop_graph <- ggplot(drops, aes(fill=Life_Stage_Simplified,
 drop_graph
 # ggsave("drop_graph.jpg", drop_graph, width=21, height=10)
 ```
-
 
 
 
