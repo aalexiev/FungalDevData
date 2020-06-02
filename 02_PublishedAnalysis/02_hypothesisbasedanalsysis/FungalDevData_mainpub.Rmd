@@ -629,34 +629,42 @@ merged_spe$rank_abund_env[order.abund_ENV] <- 1:nrow(merged_spe)
 list_OTUs <- list("OTU_15", "OTU_166", "OTU_73", "OTU_1", "OTU_25",
                   "OTU_4", "OTU_58", "OTU_34", "OTU_8", "OTU_99",
                   "OTU_3", "OTU_177", "OTU_92", "OTU_79", "OTU_148",
-                  "OTU_34", "OTU_81", "OTU_14", "OTU83", "OTU_166",
-                  "OTU_9")
+                  "OTU_34", "OTU_81", "OTU_14", "OTU_83", "OTU_166",
+                  "OTU_9", "OTU_14")
 merged_filt_spe <- merged_spe %>%
   dplyr::filter(otu.name %in% list_OTUs)
 
+# save the above file and add an "ecol" column for whether something is transient or symbiotic (based on the abundance data from ANCOM)
+# write.table(merged_filt_spe,
+#             paste0(work_dir,"Figs_Tables/Symbionts_fig/merged_filt_spe.txt"),
+#             quote=F)
+
+# read in new file with putative symbiotic data
+merged_filt_ecol <- read.csv(paste0(work_dir,"Figs_Tables/Symbionts_fig/merged_filt_ecol.csv"))
+
 # plot significant ANCOM data
 # rank abundance plot of just the OTU's in toads
-rank_toads <- ggplot(merged_filt_spe) + 
-  geom_point(aes(x=rank_abund_toad, y=rel_abund_toad, color=otu.name)) +
+rank_toads <- ggplot(merged_filt_ecol) + 
+  geom_point(aes(x=rank_abund_toad, y=rel_abund_toad, color=Ecol)) +
   xlab("rank abundance on toad samples") +
   ylab("relative abundance on toad samples")
 
 # rank abundance plot of just the OTU's in env
-rank_env <- ggplot(merged_filt_spe) + 
-  geom_point(aes(x=rank_abund_env, y=rel_abund_env, color=otu.name)) +
+rank_env <- ggplot(merged_filt_ecol) + 
+  geom_point(aes(x=rank_abund_env, y=rel_abund_env, color=Ecol)) +
   xlab("rank abundance on environmental samples") +
   ylab("relative abundance on environmental samples")
 
 # rank abundance of each of toad and env on same graph
-rank_plot <- ggplot(merged_filt_spe) + 
-  geom_point(aes(x=rank_abund_env, y=rank_abund_toad, color=otu.name)) +
+rank_plot <- ggplot(merged_filt_ecol) + 
+  geom_point(aes(x=rank_abund_env, y=rank_abund_toad, color=Ecol)) +
   xlab("rank abundance on environmental samples") +
   ylab("rank abundance on toad samples") +
   xlim(0,550) + ylim(0,550) +
   geom_abline(intercept=0, slope=1, color="red", linetype="dashed")
 
-ggsave(paste0(work_dir,"Figs_Tables/Symbionts_fig/rank_dotplot.png"), rank_plot, dpi=300,
-        width=10, height=7)
+# ggsave(paste0(work_dir,"Figs_Tables/Symbionts_fig/rank_dotplot.png"), rank_plot,
+#        dpi=300, width=10, height=7)
 ```
 
 
