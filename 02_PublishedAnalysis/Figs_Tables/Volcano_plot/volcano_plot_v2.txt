@@ -1,7 +1,7 @@
 otu.names	W_stat	W_f	Ecol
-Fungi.Ascomycota.Leotiomycetes.Thelebolales.Pseudeurotiaceae.Pseudeurotium.Pseudeurotium_hygrophilumOTU_8	51	30.78781004	Obligate
-Fungi.Ascomycota.Dothideomycetes.Capnodiales.Cladosporiaceae.Cladosporium.Cladosporium_delicatulumOTU_4	51	22.32313757	Facultative
-Fungi.Ascomycota.Dothideomycetes.Capnodiales.Mycosphaerellaceae.Mycosphaerella.Mycosphaerella_tassianaOTU_1	49	11.47366699	Facultative
+Fungi.Ascomycota.Leotiomycetes.Thelebolales.Pseudeurotiaceae.Pseudeurotium.Pseudeurotium_hygrophilumOTU_8	51	30.78781004	Symbiotic
+Fungi.Ascomycota.Dothideomycetes.Capnodiales.Cladosporiaceae.Cladosporium.Cladosporium_delicatulumOTU_4	51	22.32313757	Symbiotic
+Fungi.Ascomycota.Dothideomycetes.Capnodiales.Mycosphaerellaceae.Mycosphaerella.Mycosphaerella_tassianaOTU_1	49	11.47366699	Transient
 Fungi.Mortierellomycota.Mortierellomycetes.Mortierellales.Mortierellaceae.Mortierella.unidentifiedOTU_99	47	42.75094486	Transient
 Fungi.Ascomycota.Leotiomycetes.Helotiales.Hyaloscyphaceae.Pezizella.Pezizella_epithallinaOTU_3	46	16.7649016	Transient
 Fungi.Ascomycota.Leotiomycetes.Helotiales.Leotiaceae.Neobulgaria.Neobulgaria_puraOTU_177	40	15.16760477	Transient
@@ -10,13 +10,13 @@ Fungi.Ascomycota.Leotiomycetes.Thelebolales.Pseudeurotiaceae.Geomyces.unidentifi
 Fungi.Ascomycota.Dothideomycetes.Venturiales.Venturiaceae.Venturia.Venturia_inaequalisOTU_148	36	18.67538666	Transient
 Fungi.Rozellomycota.unidentified.unidentified.unidentified.unidentified.unidentifiedOTU_34	35	5.973284542	Transient
 Fungi.Ascomycota.Sordariomycetes.Hypocreales.unidentified.unidentified.unidentifiedOTU_81	35	4.504877044	Transient
-Fungi.Ascomycota.Dothideomycetes.Dothideales.Aureobasidiaceae.Aureobasidium.Aureobasidium_pullulansOTU_25	34	11.39942708	Facultative
+Fungi.Ascomycota.Dothideomycetes.Dothideales.Aureobasidiaceae.Aureobasidium.Aureobasidium_pullulansOTU_25	34	11.39942708	Symbiotic
 Fungi.Ascomycota.Leotiomycetes.Helotiales.Helotiaceae.Mycofalcella.Mycofalcella_calcarataOTU_14	33	12.56062033	Transient
-Fungi.Basidiomycota.Tremellomycetes.Filobasidiales.unidentified.unidentified.unidentifiedOTU_15	32	9.267740064	Obligate
+Fungi.Basidiomycota.Tremellomycetes.Filobasidiales.unidentified.unidentified.unidentifiedOTU_15	32	9.267740064	Symbiotic
 Fungi.Basidiomycota.Tremellomycetes.Filobasidiales.Piskurozymaceae.Solicoccozyma.Solicoccozyma_terricolaOTU_83	31	7.50485825	Transient
 Fungi.Ascomycota.Arthoniomycetes.Lichenostigmatales.Phaeococcomycetaceae.Phaeococcomyces.Phaeococcomyces_mexicanusOTU_166	30	8.506834314	Transient
-Fungi.Ascomycota.Dothideomycetes.Pleosporales.Phaeosphaeriaceae.Phaeosphaeria.NAOTU_73	30	7.848784458	Obligate
-Fungi.Ascomycota.Dothideomycetes.Dothideales.Dothioraceae.unidentified.unidentifiedOTU_58	29	5.583432435	Facultative
+Fungi.Ascomycota.Dothideomycetes.Pleosporales.Phaeosphaeriaceae.Phaeosphaeria.NAOTU_73	30	7.848784458	Symbiotic
+Fungi.Ascomycota.Dothideomycetes.Dothideales.Dothioraceae.unidentified.unidentifiedOTU_58	29	5.583432435	Symbiotic
 Fungi.Basidiomycota.Microbotryomycetes.Kriegeriales.Kriegeriaceae.Kriegeria.Kriegeria_eriophoriOTU_9	26	10.04326918	Transient
 Fungi.Ascomycota.Dothideomycetes.Myriangiales.Myriangiales_fam_Incertae_sedis.Endosporium.unidentifiedOTU_172	18	4.170217576	"Transient, not significant"
 Fungi.Ascomycota.Dothideomycetes.Pleosporales.Phaeosphaeriaceae.Neosetophoma.Neosetophoma_samararumOTU_272	18	0.142537749	"Transient, not significant"

@@ -28,6 +28,7 @@ library(dplyr)
 library(gridExtra)
 library(kableExtra)
 library(decontam)
+library(janitor)
 set.seed(33333)
 work_dir <- "/Users/alal3493/Documents/Projects/DevelopmentalBorealToad/FungalDevData/02_PublishedAnalysis/"
 seq_dir <- "/Users/alal3493/Documents/Projects/DevelopmentalBorealToad/FungalDevData/00_SeqProcessing/"
@@ -259,11 +260,19 @@ nrow(input_frar_lifeenv$taxonomy_loaded) # 2243
 
 # sample sizes table
 samp_sizes <- input_frar_lifeenv$map_loaded %>%
-  group_by(Life_Stage_Simplified) %>%
-  summarise(Counts=n()) %>% # find counts for the group_by variable, colname is "Counts"
-  rename(`Sample Type` = Life_Stage_Simplified) %>% # rename Life_Stage_Simplified col
-  slice(match(lifeenv_list2, `Sample Type`)) %>% # reorder Sample Type col by custom list
-  bind_rows(summarise_all(., funs(if(is.numeric(.)) sum(.) else "Total")))
+  dplyr::select(Life_Stage_Simplified, Location) %>% # select only these two columns from the big mapping file
+  dplyr::count(Life_Stage_Simplified, Location) %>% # count the samples in each category
+  tidyr::spread(key = Location, value = n) %>% # spread out the graph into pivot table format so location are the columns and the values are the counts
+  replace(., is.na(.), "0") # replace NA's with zeros since that's what they represent here
+
+# change the counts to numerics
+samp_sizes$`4_Mile` <- as.numeric(samp_sizes$`4_Mile`)
+samp_sizes$Collegiate_Peaks <- as.numeric(samp_sizes$Collegiate_Peaks)
+samp_sizes$Dennys_Creek <- as.numeric(samp_sizes$Dennys_Creek)
+samp_sizes$South_Cottonwood <- as.numeric(samp_sizes$South_Cottonwood)
+# add totals for rows and columns
+samp_sizes <- adorn_totals(samp_sizes, c("row", "col"))
+
 kable(samp_sizes) %>% 
     kable_styling(bootstrap_options = c("striped","bordered"), 
                   full_width = F, position = "left")
