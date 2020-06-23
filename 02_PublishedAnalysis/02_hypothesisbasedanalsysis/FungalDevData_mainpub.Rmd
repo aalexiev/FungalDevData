@@ -560,7 +560,7 @@ rank_plot <- ggplot(merged_filt_ecol) +
   geom_abline(intercept=0, slope=1, color="red", linetype="dashed")
 rank_plot
 
-# as per Melissa's input, relative abundance only might be good enough for this graph
+# as per Melissa's input, relative abundance only might be good enough for this graph since that's what ANCOM uses
 rel_plot <- ggplot(merged_filt_ecol) + 
   geom_point(aes(x=rel_abund_env, y=rel_abund_toad, color=Ecol)) +
   xlab("Relative Abundance on Environmental Samples") +
@@ -572,6 +572,9 @@ rel_plot <- ggplot(merged_filt_ecol) +
 rel_plot
 
 # ggsave(paste0(work_dir,"Figs_Tables/Symbionts_fig/rank_dotplot.png"), rank_plot,
+#        dpi=300, width=7, height=4)
+
+# ggsave(paste0(work_dir,"Figs_Tables/Symbionts_fig/rel_dotplot.png"), rel_plot,
 #        dpi=300, width=7, height=4)
 ```
 
