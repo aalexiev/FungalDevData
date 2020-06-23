@@ -462,7 +462,7 @@ volcano.plot <- ggplot(W_frame_V2) +
   geom_point(aes(x=W_f, y=W_stat, color=Ecol)) +
   xlab("CLR F statistic (Effect size)") +
   ylab("W statistic") +
-  labs(color = "") +
+  labs(color = "Putative host relationship") +
   scale_color_manual(values=c("#56B4E9", "#CC79A7", "#000000")) + 
   geom_hline(mapping=aes(yintercept=22), col="red", lty=2)
 volcano.plot
@@ -530,7 +530,9 @@ merged_filt_spe <- merged_spe %>%
 # write.table(merged_filt_spe,
 #             paste0(work_dir,"Figs_Tables/Symbionts_fig/merged_filt_spe.txt"),
 #             quote=F)
+```
 
+```{r}
 # read in new file with putative symbiotic data
 merged_filt_ecol <- read.csv(paste0(work_dir,"Figs_Tables/Symbionts_fig/merged_filt_ecol.csv"))
 
@@ -552,11 +554,22 @@ rank_plot <- ggplot(merged_filt_ecol) +
   geom_point(aes(x=percentile_env, y=percentile_toad, color=Ecol)) +
   xlab("Percentile Rank Abundance on Environmental Samples") +
   ylab("Percentile Rank Abundance on Toad Samples") +
-  labs(color = "Putative Niche") +
+  labs(color = "Putative host relationship") +
   xlim(0,1) + ylim(0,1) +
   scale_color_manual(values=c("#56B4E9", "#CC79A7")) +
   geom_abline(intercept=0, slope=1, color="red", linetype="dashed")
 rank_plot
+
+# as per Melissa's input, relative abundance only might be good enough for this graph
+rel_plot <- ggplot(merged_filt_ecol) + 
+  geom_point(aes(x=rel_abund_env, y=rel_abund_toad, color=Ecol)) +
+  xlab("Relative Abundance on Environmental Samples") +
+  ylab("Relative Abundance on Toad Samples") +
+  labs(color = "Putative host relationship") +
+  xlim(0,100) + ylim(0,100) +
+  scale_color_manual(values=c("#56B4E9", "#CC79A7")) +
+  geom_abline(intercept=0, slope=1, color="red", linetype="dashed")
+rel_plot
 
 # ggsave(paste0(work_dir,"Figs_Tables/Symbionts_fig/rank_dotplot.png"), rank_plot,
 #        dpi=300, width=7, height=4)
