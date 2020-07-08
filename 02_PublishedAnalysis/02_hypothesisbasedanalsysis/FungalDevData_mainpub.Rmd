@@ -425,6 +425,9 @@ comparison_test_lifeenv$Plot.volcano.0.9
 comparison_test_lifeenv$Plot.critical.w 
 # I think W=~20 actually would be better, especially with the clumping of the points in the previous plots. I'll take this into account in the write out file.
 # write.table(comparison_test_lifeenv$W.taxa, paste0(work_dir,"02_hypothesisbasedanalsysis/indic_taxabunds_lifeenv.txt"), sep="\t", quote=F)
+# save(comparison_test_lifeenv, 
+#      file=paste0(work_dir,"02_hypothesisbasedanalsysis/ANCOM_lifeenv.RData"), 
+#      envir = .GlobalEnv)
 
 #   2) ANCOM so that each life stage gets compared individually to each environmental sample type. Caveat: this uses a Kruskall-Wallis test so it's not a pairwise comparison (i.e. it won't identify OTU's that are different between e.g. water and tadpole)
 comparison_test_lifestages <- ANCOM.main.myc(OTUdat = OTU_ancom,
@@ -470,59 +473,37 @@ volcano.plot
 #        volcano.plot, dpi=400, width=7, height=5)
 ```
 
-Make a percentile rank abundance based plot using the data, since ANCOM is actually using rank abundances to identify indicator OTU's
+## A relative abundance plot using the data
 ```{r}
-# calculate relative then rank abundance then percentile for each OTU in the whole dataset
-
 # relative abundance in toad samples
 spe <- t(input_toad$data_loaded)
-spe.pres <- apply(spe > 0, 2, sum)
-spe.relf <- 100*spe.pres/nrow(spe)
+spe.relf <- 100*(spe/rowSums(spe))
 
 # filter input all for only env samples
 input_env <- filter_data(input_all, filter_cat = "Type", 
                       filter_vals = "life") #48 samples remaining
 # relative abundance in env samples
 spe2 <- t(input_env$data_loaded)
-spe.pres2 <- apply(spe2 > 0, 2, sum)
-spe.relf2 <- 100*spe.pres2/nrow(spe2)
+spe.relf2 <- 100*(spe2/rowSums(spe2))
 
 # clean up data
-spe_rel_t <- spe.relf %>%
+spe_rel_t <- t(spe.relf) %>%
   as.data.frame() %>%
   rownames_to_column(var = "otu.name")
 names(spe_rel_t)[2] <- "rel_abund_toad" # name the second column something
-spe_rel_e <- spe.relf2 %>%
+spe_rel_t <- spe_rel_t[,c(1,2)] # only take the first two columns (out ID and relative abundace on toad)
+spe_rel_e <- t(spe.relf2) %>%
   as.data.frame() %>%
   rownames_to_column(var = "otu.name")
 names(spe_rel_e)[2] <- "rel_abund_env"
+spe_rel_e <- spe_rel_e[,c(1,2)]
 merged_spe <- merge(spe_rel_t, spe_rel_e, by="otu.name")
-
-# calculate rank abundance in Toad samples of each OTU
-order.abund_TOAD <- order(-merged_spe$rel_abund_toad,as.vector(merged_spe$otu.name))
-merged_spe$rank_abund_toad <- NA # add as new column for later use
-merged_spe$rank_abund_toad[order.abund_TOAD] <- 1:nrow(merged_spe)
-
-# calculate rank abundance in Environmental samples of each OTU
-order.abund_ENV <- order(-merged_spe$rel_abund_env,as.vector(merged_spe$otu.name))
-merged_spe$rank_abund_env <- NA
-merged_spe$rank_abund_env[order.abund_ENV] <- 1:nrow(merged_spe)
-
-# convert rankings to percentile rankings for toad and env samples
-ecdf_toad <- ecdf(merged_spe$rank_abund_toad) # produces a "function" call that will tell you percentile of any number in range merged_spe$rank_abund_toad
-merged_spe$percentile_toad <- NA
-merged_spe$percentile_toad <- ecdf_toad(merged_spe$rank_abund_toad) # will give you quantile of every OTU in toadOTU_rankings
-ecdf_env <- ecdf(merged_spe$rank_abund_env)
-merged_spe$percentile_env <- NA
-merged_spe$percentile_env <- ecdf_env(merged_spe$rank_abund_env)
-
 
 # filter out only the OTU names and relative abundance data
 list_OTUs <- list("OTU_15", "OTU_166", "OTU_73", "OTU_1", "OTU_25",
                   "OTU_4", "OTU_58", "OTU_34", "OTU_8", "OTU_99",
                   "OTU_3", "OTU_177", "OTU_92", "OTU_79", "OTU_148",
-                  "OTU_34", "OTU_81", "OTU_14", "OTU_83", "OTU_166",
-                  "OTU_9", "OTU_14")
+                  "OTU_81", "OTU_14", "OTU_83", "OTU_9")
 merged_filt_spe <- merged_spe %>%
   dplyr::filter(otu.name %in% list_OTUs)
 
