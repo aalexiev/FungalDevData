@@ -486,6 +486,8 @@ input_env <- filter_data(input_all, filter_cat = "Type",
 spe2 <- t(input_env$data_loaded)
 spe.relf2 <- 100*(spe2/rowSums(spe2))
 
+#####find average relative abundance for each OTU in toads versus env (right now I think it's additive)####
+
 # clean up data
 spe_rel_t <- t(spe.relf) %>%
   as.data.frame() %>%
@@ -517,31 +519,6 @@ merged_filt_spe <- merged_spe %>%
 # read in new file with putative symbiotic data
 merged_filt_ecol <- read.csv(paste0(work_dir,"Figs_Tables/Symbionts_fig/merged_filt_ecol.csv"))
 
-# plot significant ANCOM data
-# rank abundance plot of just the OTU's in toads
-rank_toads <- ggplot(merged_filt_ecol) + 
-  geom_point(aes(x=rank_abund_toad, y=rel_abund_toad, color=Ecol)) +
-  xlab("rank abundance on toad samples") +
-  ylab("relative abundance on toad samples")
-
-# rank abundance plot of just the OTU's in env
-rank_env <- ggplot(merged_filt_ecol) + 
-  geom_point(aes(x=rank_abund_env, y=rel_abund_env, color=Ecol)) +
-  xlab("rank abundance on environmental samples") +
-  ylab("relative abundance on environmental samples")
-
-# rank abundance of each of toad and env on same graph
-rank_plot <- ggplot(merged_filt_ecol) + 
-  geom_point(aes(x=percentile_env, y=percentile_toad, color=Ecol)) +
-  xlab("Percentile Rank Abundance on Environmental Samples") +
-  ylab("Percentile Rank Abundance on Toad Samples") +
-  labs(color = "Putative host relationship") +
-  xlim(0,1) + ylim(0,1) +
-  scale_color_manual(values=c("#56B4E9", "#CC79A7")) +
-  geom_abline(intercept=0, slope=1, color="red", linetype="dashed")
-rank_plot
-
-# as per Melissa's input, relative abundance only might be good enough for this graph since that's what ANCOM uses
 rel_plot <- ggplot(merged_filt_ecol) + 
   geom_point(aes(x=rel_abund_env, y=rel_abund_toad, color=Ecol)) +
   xlab("Relative Abundance on Environmental Samples") +
@@ -551,9 +528,6 @@ rel_plot <- ggplot(merged_filt_ecol) +
   scale_color_manual(values=c("#56B4E9", "#CC79A7")) +
   geom_abline(intercept=0, slope=1, color="red", linetype="dashed")
 rel_plot
-
-# ggsave(paste0(work_dir,"Figs_Tables/Symbionts_fig/rank_dotplot.png"), rank_plot,
-#        dpi=300, width=7, height=4)
 
 # ggsave(paste0(work_dir,"Figs_Tables/Symbionts_fig/rel_dotplot.png"), rel_plot,
 #        dpi=300, width=7, height=4)
