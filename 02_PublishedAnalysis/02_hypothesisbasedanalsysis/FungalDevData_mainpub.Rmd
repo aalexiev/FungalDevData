@@ -192,7 +192,7 @@ for ( i in 1:ncol(cats_pairs) ) { # for each pair of sample types
     pair <- cats_pairs[, i] # define the pair
     Gosner_rich <- input_all$map_loaded %>% # take the mapping file
     dplyr::select(Gosner_Stage, rich) %>% # select these two columns from it
-    filter(Gosner_Stage %in% pair) # filter the sample types in the pair
+    dplyr::filter(Gosner_Stage %in% pair) # filter the sample types in the pair
     wil <- wilcox.test(rich ~ Gosner_Stage, data = Gosner_rich, paired = F, exact = F) # run Wilcoxon test
     pvals <- c(pvals, wil$p.value) # save the p val
     Wstat <- c(Wstat, wil$statistic) # save the W statistic
@@ -398,7 +398,7 @@ map_ancom <- read.delim(paste0(work_dir,"02_hypothesisbasedanalsysis/map_ancom.t
                         sep = "\t", header = T)
 
 # source the code, downloaded from: https://github.com/mech3132/MSC_code/blob/master/ANCOM_updated_code_MYC.R
-source(paste0(work_dir,"02_hypothesisbasedanalsysis/ANCOM_updated_code_MYC.R"))
+source("/Users/alal3493/Documents/Reference_Info/ANCOM_MYC/ANCOM_updated_code_MYC_AA.R")
 
 #   1) using just sample type as life or env
 # run ancom with parameters for no repeated data, no adjustment (so it'll use a Wilcoxon test)
@@ -424,9 +424,8 @@ comparison_test_lifeenv$Plot.volcano.0.9
 # this helps you determine if the critical w was chosen correctly. We want the valley between a bimodal distribution, in theory.
 comparison_test_lifeenv$Plot.critical.w 
 # I think W=~20 actually would be better, especially with the clumping of the points in the previous plots. I'll take this into account in the write out file.
-# write.table(comparison_test_lifeenv$W.taxa, paste0(work_dir,"02_hypothesisbasedanalsysis/indic_taxabunds_lifeenv.txt"), sep="\t", quote=F)
-# save(comparison_test_lifeenv, 
-#      file=paste0(work_dir,"02_hypothesisbasedanalsysis/ANCOM_lifeenv.RData"), 
+# save(comparison_test_lifeenv,
+#      file=paste0(work_dir,"02_hypothesisbasedanalsysis/ANCOM_lifeenv.RData"),
 #      envir = .GlobalEnv)
 
 #   2) ANCOM so that each life stage gets compared individually to each environmental sample type. Caveat: this uses a Kruskall-Wallis test so it's not a pairwise comparison (i.e. it won't identify OTU's that are different between e.g. water and tadpole)
@@ -447,95 +446,64 @@ comparison_test_lifestages <- ANCOM.main.myc(OTUdat = OTU_ancom,
 
 ## Graph Volcano plot
 ```{r}
-#make a volcano plot showing the associated microbes
-otu.names <- comparison_test_lifeenv$W.taxa$otu.names
-W_stat <- comparison_test_lifeenv$W.taxa$W_stat
-W_f <- comparison_test_lifeenv$W.taxa$W_f
-W_frame <- data.frame(otu.names,W_stat,W_f,row.names=NULL)
-# in excel, add column for whether they are transient or symbionts; read in that file
-# write.table(W_frame, paste0(work_dir,"Figs_Tables/Volcano_plot/volcano_plot.txt"), sep="\t")
-W_frame_V2 <- read.delim(paste0(work_dir,"Figs_Tables/Volcano_plot/volcano_plot_V2.txt"))
+# load(file=paste0(work_dir,"02_hypothesisbasedanalsysis/ANCOM_lifeenv.RData"))
 
-26-(26-18)/2 # want to put interept between 18 and 26 because W=26+ is significant and 18 and less is not
+# make a volcano plot showing the associated microbes
+W_frame <- comparison_test_lifeenv$W.taxa %>%
+  mutate(Enriched = case_when(W_stat < 26 ~ "Transient, not significant",
+                              env_relAbund > life_relAbund ~ "Transient",
+                              TRUE ~ "Symbiotic"))
+
+yint = 26-(26-18)/2 # want to put interept between 18 and 26 because W=26+ is significant and 18 and less is not
 # figure out order of ecol for legend
 Ecol_list <- c("Symbiotic", "Transient", "Transient, not significant")
-W_frame_V2$Ecol <- factor(W_frame_V2$Ecol, levels=Ecol_list)
+W_frame$Enriched <- factor(W_frame$Enriched, levels=Ecol_list)
+# write.table(W_frame,
+#             paste0(work_dir,"02_hypothesisbasedanalsysis/indic_taxabunds_lifeenv.txt"),
+#             sep="\t", quote=F)
+
 # graph volcano plot
-volcano.plot <- ggplot(W_frame_V2) +
-  geom_point(aes(x=W_f, y=W_stat, color=Ecol)) +
+volcano.plot <- ggplot(W_frame) +
+  geom_point(aes(x=W_f, y=W_stat, color=Enriched)) +
   xlab("CLR F statistic (Effect size)") +
   ylab("W statistic") +
   labs(color = "Putative host relationship") +
   scale_color_manual(values=c("#56B4E9", "#CC79A7", "#000000")) + 
-  geom_hline(mapping=aes(yintercept=22), col="red", lty=2)
+  geom_hline(mapping=aes(yintercept=yint), col="red", lty=2)
 volcano.plot
-# ggsave(paste0(work_dir,"Figs_Tables/Volcano_plot/volcano_plot_color.png"),
+# ggsave(paste0(work_dir,"Figs_Tables/volcano_plot_color.png"),
 #        volcano.plot, dpi=400, width=7, height=5)
 ```
 
+
 ## A relative abundance plot using the data
 ```{r}
-# relative abundance in toad samples
-spe <- t(input_toad$data_loaded)
-spe.relf <- 100*(spe/rowSums(spe))
-
-# filter input all for only env samples
-input_env <- filter_data(input_all, filter_cat = "Type", 
-                      filter_vals = "life") #48 samples remaining
-# relative abundance in env samples
-spe2 <- t(input_env$data_loaded)
-spe.relf2 <- 100*(spe2/rowSums(spe2))
-
-#####find average relative abundance for each OTU in toads versus env (right now I think it's additive)####
-
-# clean up data
-spe_rel_t <- t(spe.relf) %>%
-  as.data.frame() %>%
-  rownames_to_column(var = "otu.name")
-names(spe_rel_t)[2] <- "rel_abund_toad" # name the second column something
-spe_rel_t <- spe_rel_t[,c(1,2)] # only take the first two columns (out ID and relative abundace on toad)
-spe_rel_e <- t(spe.relf2) %>%
-  as.data.frame() %>%
-  rownames_to_column(var = "otu.name")
-names(spe_rel_e)[2] <- "rel_abund_env"
-spe_rel_e <- spe_rel_e[,c(1,2)]
-merged_spe <- merge(spe_rel_t, spe_rel_e, by="otu.name")
-
-# filter out only the OTU names and relative abundance data
-list_OTUs <- list("OTU_15", "OTU_166", "OTU_73", "OTU_1", "OTU_25",
-                  "OTU_4", "OTU_58", "OTU_34", "OTU_8", "OTU_99",
-                  "OTU_3", "OTU_177", "OTU_92", "OTU_79", "OTU_148",
-                  "OTU_81", "OTU_14", "OTU_83", "OTU_9")
-merged_filt_spe <- merged_spe %>%
-  dplyr::filter(otu.name %in% list_OTUs)
-
-# save the above file and add an "ecol" column for whether something is transient or symbiotic (based on the abundance data from ANCOM)
-# write.table(merged_filt_spe,
-#             paste0(work_dir,"Figs_Tables/Symbionts_fig/merged_filt_spe.txt"),
-#             quote=F)
-```
-
-```{r}
-# read in new file with putative symbiotic data
-merged_filt_ecol <- read.csv(paste0(work_dir,"Figs_Tables/Symbionts_fig/merged_filt_ecol.csv"))
+# filter to only have ecologically relevant data
+merged_filt_ecol <- W_frame %>%
+  dplyr::filter(Enriched %in% c("Symbiotic", "Transient"))
+merged_filt_ecol$env_relAbund_ln <- log(merged_filt_ecol$env_relAbund)
+merged_filt_ecol$life_relAbund_ln <- log(merged_filt_ecol$life_relAbund)
+# write.table(merged_filt_ecol,
+#             paste0(work_dir,"02_hypothesisbasedanalsysis/indic_taxabunds_lifeenv.txt"),
+#             sep="\t", quote=F)
 
 rel_plot <- ggplot(merged_filt_ecol) + 
-  geom_point(aes(x=rel_abund_env, y=rel_abund_toad, color=Ecol)) +
-  xlab("Relative Abundance on Environmental Samples") +
-  ylab("Relative Abundance on Toad Samples") +
+  geom_point(aes(x=env_relAbund_ln, y=life_relAbund_ln, color=Enriched)) +
+  xlab("Natural log Relative Abundance on Environmental Samples") +
+  ylab("Natural log Relative Abundance on Toad Samples") +
   labs(color = "Putative host relationship") +
-  xlim(0,100) + ylim(0,100) +
+  xlim(-10,0) + ylim(-10,0) +
   scale_color_manual(values=c("#56B4E9", "#CC79A7")) +
   geom_abline(intercept=0, slope=1, color="red", linetype="dashed")
 rel_plot
 
-# ggsave(paste0(work_dir,"Figs_Tables/Symbionts_fig/rel_dotplot.png"), rel_plot,
+# ggsave(paste0(work_dir,"Figs_Tables/rel_dotplot.png"), rel_plot,
 #        dpi=300, width=7, height=4)
 ```
 
 
 
-## Miscellaneous
+### Miscellaneous
 
 Here, I'm making a graph showing where certain sample types fell out in the various processing steps.
 

@@ -1,54 +1,20 @@
-otu.names	W_stat	W_f	env_relAbund	life_relAbund	detected_wcrit	detected_0.9	detected_0.8	detected_0.7	detected_0.6	effSize_statcrit	effSize_0.9	effSize_0.8	effSize_0.7	effSize_0.6	
-7	Fungi.Ascomycota.Leotiomycetes.Thelebolales.Pseudeurotiaceae.Pseudeurotium.Pseudeurotium_hygrophilumOTU_8	51	30.78781004	0.006382114	0	TRUE	TRUE	TRUE	TRUE	TRUE	FALSE	TRUE	TRUE	TRUE	TRUE
-4	Fungi.Ascomycota.Dothideomycetes.Capnodiales.Cladosporiaceae.Cladosporium.Cladosporium_delicatulumOTU_4	51	22.32313757	0	0.036028247	TRUE	TRUE	TRUE	TRUE	TRUE	FALSE	TRUE	TRUE	TRUE	TRUE
-3	Fungi.Ascomycota.Dothideomycetes.Capnodiales.Mycosphaerellaceae.Mycosphaerella.Mycosphaerella_tassianaOTU_1	49	11.47366699	0.024987011	0.197053879	TRUE	TRUE	TRUE	TRUE	TRUE	FALSE	FALSE	TRUE	TRUE	TRUE
-48	Fungi.Mortierellomycota.Mortierellomycetes.Mortierellales.Mortierellaceae.Mortierella.unidentifiedOTU_99	47	42.75094486	0	0	TRUE	TRUE	TRUE	TRUE	TRUE	FALSE	TRUE	TRUE	TRUE	TRUE
-1	Fungi.Ascomycota.Leotiomycetes.Helotiales.Hyaloscyphaceae.Pezizella.Pezizella_epithallinaOTU_3	46	16.7649016	0.020377438	0	TRUE	FALSE	TRUE	TRUE	TRUE	FALSE	TRUE	TRUE	TRUE	TRUE
-12	Fungi.Ascomycota.Leotiomycetes.Helotiales.Leotiaceae.Neobulgaria.Neobulgaria_puraOTU_177	40	15.16760477	0	0	FALSE	FALSE	FALSE	TRUE	TRUE	FALSE	FALSE	TRUE	TRUE	TRUE
-38	Fungi.Basidiomycota.Agaricomycetes.Agaricales.Inocybaceae.Inocybe.Inocybe_curvipesOTU_92	39	21.60463896	0	0	FALSE	FALSE	FALSE	TRUE	TRUE	FALSE	TRUE	TRUE	TRUE	TRUE
-33	Fungi.Ascomycota.Leotiomycetes.Thelebolales.Pseudeurotiaceae.Geomyces.unidentifiedOTU_79	39	9.169858899	0	0	FALSE	FALSE	FALSE	TRUE	TRUE	FALSE	FALSE	FALSE	TRUE	TRUE
-42	Fungi.Ascomycota.Dothideomycetes.Venturiales.Venturiaceae.Venturia.Venturia_inaequalisOTU_148	36	18.67538666	0	0	FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	TRUE	TRUE	TRUE	TRUE
-23	Fungi.Rozellomycota.unidentified.unidentified.unidentified.unidentified.unidentifiedOTU_34	35	5.973284542	0.000572082	0	FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	FALSE	FALSE	FALSE	TRUE
-18	Fungi.Ascomycota.Sordariomycetes.Hypocreales.unidentified.unidentified.unidentifiedOTU_81	35	4.504877044	0	0	FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	FALSE	FALSE	FALSE	TRUE
-35	Fungi.Ascomycota.Dothideomycetes.Dothideales.Aureobasidiaceae.Aureobasidium.Aureobasidium_pullulansOTU_25	34	11.39942708	0	0	FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	FALSE	TRUE	TRUE	TRUE
-22	Fungi.Ascomycota.Leotiomycetes.Helotiales.Helotiaceae.Mycofalcella.Mycofalcella_calcarataOTU_14	33	12.56062033	0	0	FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	FALSE	TRUE	TRUE	TRUE
-6	Fungi.Basidiomycota.Tremellomycetes.Filobasidiales.unidentified.unidentified.unidentifiedOTU_15	32	9.267740064	0	0	FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	FALSE	FALSE	TRUE	TRUE
-41	Fungi.Basidiomycota.Tremellomycetes.Filobasidiales.Piskurozymaceae.Solicoccozyma.Solicoccozyma_terricolaOTU_83	31	7.50485825	0	0	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	TRUE	TRUE
-30	Fungi.Ascomycota.Arthoniomycetes.Lichenostigmatales.Phaeococcomycetaceae.Phaeococcomyces.Phaeococcomyces_mexicanusOTU_166	30	8.506834314	0	0	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	TRUE	TRUE
-21	Fungi.Ascomycota.Dothideomycetes.Pleosporales.Phaeosphaeriaceae.Phaeosphaeria.NAOTU_73	30	7.848784458	0	0	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	TRUE	TRUE
-32	Fungi.Ascomycota.Dothideomycetes.Dothideales.Dothioraceae.unidentified.unidentifiedOTU_58	29	5.583432435	0	0	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	TRUE
-20	Fungi.Basidiomycota.Microbotryomycetes.Kriegeriales.Kriegeriaceae.Kriegeria.Kriegeria_eriophoriOTU_9	26	10.04326918	0	0	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	TRUE	TRUE	TRUE
-34	Fungi.Ascomycota.Dothideomycetes.Myriangiales.Myriangiales_fam_Incertae_sedis.Endosporium.unidentifiedOTU_172	18	4.170217576	0	0	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE
-49	Fungi.Ascomycota.Dothideomycetes.Pleosporales.Phaeosphaeriaceae.Neosetophoma.Neosetophoma_samararumOTU_272	18	0.142537749	0	0	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE
-45	Fungi.Ascomycota.Dothideomycetes.Capnodiales.Cladosporiaceae.Cladosporium.Cladosporium_delicatulumOTU_240	18	0.067764235	0	0	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE
-24	Fungi.Basidiomycota.Microbotryomycetes.unidentified.unidentified.unidentified.unidentifiedOTU_5584	18	0.062112791	0	0	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE
-39	Fungi.Rozellomycota.unidentified.unidentified.unidentified.unidentified.unidentifiedOTU_6740	18	0.013012348	0	0	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE
-29	Fungi.Ascomycota.Dothideomycetes.Venturiales.Venturiaceae.unidentified.unidentifiedOTU_75	18	0.007482641	0	0	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE
-50	Fungi.Ascomycota.Leotiomycetes.Helotiales.Helotiales_fam_Incertae_sedis.Volucrispora.Volucrispora_gramineaOTU_106	17	1.668199635	0	0	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE
-46	Fungi.Ascomycota.Dothideomycetes.Pleosporales.Phaeosphaeriaceae.Sclerostagonospora.Sclerostagonospora_phragmiticolaOTU_12	16	1.352189284	0	0	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE
-44	Fungi.Ascomycota.Dothideomycetes.Venturiales.Venturiaceae.Venturia.Venturia_acerisOTU_290	16	0.150413506	0	0	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE
-19	Fungi.Basidiomycota.Agaricomycetes.Agaricales.Schizophyllaceae.Schizophyllum.Schizophyllum_communeOTU_7180	15	4.426779607	0	0	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	TRUE
-47	Fungi.Ascomycota.Dothideomycetes.Dothideales.Dothioraceae.Hormonema.Hormonema_macrosporumOTU_40	15	2.760273574	0	0	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE
-5	Fungi.Basidiomycota.Microbotryomycetes.NA.NA.NA.NAOTU_62	15	0.019601859	0	0	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE
-36	Fungi.Basidiomycota.Microbotryomycetes.Sporidiobolales.Sporidiobolaceae.Rhodosporidiobolus.Rhodosporidiobolus_colostriOTU_6281	14	4.096752451	0	0	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE
-28	Fungi.Ascomycota.Dothideomycetes.Dothideales.unidentified.unidentified.unidentifiedOTU_151	14	1.20069162	0	0	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE
-11	Fungi.Ascomycota.Eurotiomycetes.Eurotiales.Aspergillaceae.Aspergillus.Aspergillus_subversicolorOTU_161	14	0.463674682	0	0	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE
-13	Fungi.Basidiomycota.Tremellomycetes.Cystofilobasidiales.Mrakiaceae.Mrakia.Mrakia_frigidaOTU_72	14	0.165313651	0	0	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE
-43	Fungi.Ascomycota.Dothideomycetes.Pleosporales.Massarinaceae.Stagonospora.Stagonospora_perfectaOTU_71	13	4.216612567	0	0	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	TRUE
-40	Fungi.Basidiomycota.Tremellomycetes.Filobasidiales.Filobasidiaceae.Naganishia.Naganishia_albidaOTU_37	13	2.389589994	0	0	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE
-25	Fungi.Ascomycota.Eurotiomycetes.Eurotiales.Aspergillaceae.Penicillium.Penicillium_bialowiezenseOTU_171	13	2.350823609	0	0	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE
-31	Fungi.Basidiomycota.Tremellomycetes.Cystofilobasidiales.Cystofilobasidiales_fam_Incertae_sedis.Mrakiella.Mrakiella_aquaticaOTU_156	13	0.819103113	0	0	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE
-51	Fungi.Ascomycota.Dothideomycetes.Capnodiales.NA.NA.NAOTU_6369	13	0.449403272	0	0	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE
-17	Fungi.Ascomycota.NA.NA.NA.NA.NAOTU_201	13	0.403664662	0	0	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE
-14	Fungi.Ascomycota.Leotiomycetes.Thelebolales.Thelebolaceae.unidentified.unidentifiedOTU_13	12	0.550910657	0	0	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE
-9	Fungi.Ascomycota.Dothideomycetes.Pleosporales.Phaeosphaeriaceae.Phaeosphaeria.Phaeosphaeria_silenes.acaulisOTU_84	11	2.592374909	0	0	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE
-15	Fungi.Ascomycota.Leotiomycetes.Thelebolales.Pseudeurotiaceae.Pseudeurotium.NAOTU_30	11	1.488910231	0	0	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE
-52	Fungi.Ascomycota.Saccharomycetes.Saccharomycetales.Saccharomycetaceae.Zygosaccharomyces.Zygosaccharomyces_rouxiiOTU_903	11	0.14908543	0	0	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE
-16	Fungi.Ascomycota.Dothideomycetes.Pleosporales.Pleosporaceae.Alternaria.NAOTU_21	10	1.153706296	0	0	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE
-2	Fungi.Ascomycota.Orbiliomycetes.Orbiliales.Orbiliaceae.Dactylaria.Dactylaria_dimorphosporaOTU_36	10	0.400964321	0	0	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE
-27	Fungi.Basidiomycota.Agaricomycetes.Thelephorales.Thelephoraceae.Tomentella.unidentifiedOTU_19	9	2.063111379	0	0	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE
-53	Fungi.Ascomycota.Eurotiomycetes.Eurotiales.Aspergillaceae.Penicillium.NAOTU_95	9	0.500478131	0	0	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE
-26	Fungi.Ascomycota.Dothideomycetes.Pleosporales.Phaeosphaeriaceae.Sclerostagonospora.Sclerostagonospora_phragmiticolaOTU_76	7	0.057321197	0	0	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE
-10	Fungi.Ascomycota.Dothideomycetes.Pleosporales.Phaeosphaeriaceae.Phaeosphaeria.Phaeosphaeria_silenes.acaulisOTU_6105	6	0.120278001	0	0	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE
-37	Fungi.Ascomycota.Eurotiomycetes.Eurotiales.Aspergillaceae.Penicillium.Penicillium_chrysogenumOTU_54	5	0.3465291	0	0	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE
-8	Fungi.Ascomycota.Dothideomycetes.Pleosporales.Phaeosphaeriaceae.unidentified.unidentifiedOTU_11	4	0.718557109	0	0	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE
+otu.names	W_stat	W_f	env_relAbund	life_relAbund	detected_wcrit	detected_0.9	detected_0.8	detected_0.7	detected_0.6	effSize_statcrit	effSize_0.9	effSize_0.8	effSize_0.7	effSize_0.6	Enriched	env_relAbund_ln	life_relAbund_ln
+1	Fungi.Ascomycota.Leotiomycetes.Thelebolales.Pseudeurotiaceae.Pseudeurotium.Pseudeurotium_hygrophilumOTU_8	51	30.7878100405545	0.113334189119341	0.0130676831509567	TRUE	TRUE	TRUE	TRUE	TRUE	FALSE	TRUE	TRUE	TRUE	TRUE	Transient	-2.17741439901554	-4.33761303171443
+2	Fungi.Ascomycota.Dothideomycetes.Capnodiales.Cladosporiaceae.Cladosporium.Cladosporium_delicatulumOTU_4	51	22.323137572104	0.0406039749855361	0.0961617122758158	TRUE	TRUE	TRUE	TRUE	TRUE	FALSE	TRUE	TRUE	TRUE	TRUE	Symbiotic	-3.20388931111925	-2.34172400182491
+3	Fungi.Ascomycota.Dothideomycetes.Capnodiales.Mycosphaerellaceae.Mycosphaerella.Mycosphaerella_tassianaOTU_1	49	11.4736669933824	0.105573332763887	0.28321104688773	TRUE	TRUE	TRUE	TRUE	TRUE	FALSE	FALSE	TRUE	TRUE	TRUE	Symbiotic	-2.24834947024622	-1.26156291055141
+4	Fungi.Mortierellomycota.Mortierellomycetes.Mortierellales.Mortierellaceae.Mortierella.unidentifiedOTU_99	47	42.7509448641903	0.0147490277758582	0.00144724788818585	TRUE	TRUE	TRUE	TRUE	TRUE	FALSE	TRUE	TRUE	TRUE	TRUE	Transient	-4.21657811186983	-6.53809153419721
+5	Fungi.Ascomycota.Leotiomycetes.Helotiales.Hyaloscyphaceae.Pezizella.Pezizella_epithallinaOTU_3	46	16.7649016030903	0.10453370766648	0.0343157784896434	TRUE	FALSE	TRUE	TRUE	TRUE	FALSE	TRUE	TRUE	TRUE	TRUE	Transient	-2.2582456981873	-3.37215001630906
+6	Fungi.Ascomycota.Leotiomycetes.Helotiales.Leotiaceae.Neobulgaria.Neobulgaria_puraOTU_177	40	15.1676047743934	0.0239497068502387	0.00251517808964487	FALSE	FALSE	FALSE	TRUE	TRUE	FALSE	FALSE	TRUE	TRUE	TRUE	Transient	-3.73179919527366	-5.98541166694542
+7	Fungi.Basidiomycota.Agaricomycetes.Agaricales.Inocybaceae.Inocybe.Inocybe_curvipesOTU_92	39	21.6046389557156	0.0305407741081073	0.00125853089983223	FALSE	FALSE	FALSE	TRUE	TRUE	FALSE	TRUE	TRUE	TRUE	TRUE	Transient	-3.48869263216163	-6.6778101907843
+8	Fungi.Ascomycota.Leotiomycetes.Thelebolales.Pseudeurotiaceae.Geomyces.unidentifiedOTU_79	39	9.16985889911907	0.00546311429734375	0.00486244889954237	FALSE	FALSE	FALSE	TRUE	TRUE	FALSE	FALSE	FALSE	TRUE	TRUE	Transient	-5.20973626770363	-5.32621307918434
+9	Fungi.Ascomycota.Dothideomycetes.Venturiales.Venturiaceae.Venturia.Venturia_inaequalisOTU_148	36	18.6753866618156	0.0123770848235229	0.00130876791697275	FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	TRUE	TRUE	TRUE	TRUE	Transient	-4.39190851412925	-6.63866910573169
+10	Fungi.Rozellomycota.unidentified.unidentified.unidentified.unidentified.unidentifiedOTU_34	35	5.97328454153035	0.0898824480018365	0.0360344476841025	FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	FALSE	FALSE	FALSE	TRUE	Transient	-2.40925259570039	-3.32327991793001
+11	Fungi.Ascomycota.Sordariomycetes.Hypocreales.unidentified.unidentified.unidentifiedOTU_81	35	4.5048770435326	0.00627870610216079	0.00582886138670351	FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	FALSE	FALSE	FALSE	TRUE	Transient	-5.07059135441786	-5.14493360014597
+12	Fungi.Ascomycota.Dothideomycetes.Dothideales.Aureobasidiaceae.Aureobasidium.Aureobasidium_pullulansOTU_25	34	11.3994270753704	0.00442945969697229	0.0203999208427282	FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	FALSE	TRUE	TRUE	TRUE	Symbiotic	-5.41947766692945	-3.89222425839792
+13	Fungi.Ascomycota.Leotiomycetes.Helotiales.Helotiaceae.Mycofalcella.Mycofalcella_calcarataOTU_14	33	12.5606203327633	0.0277259411846532	0.00357863615481202	FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	FALSE	TRUE	TRUE	TRUE	Transient	-3.5853867991748	-5.63277351349713
+14	Fungi.Basidiomycota.Tremellomycetes.Filobasidiales.unidentified.unidentified.unidentifiedOTU_15	32	9.26774006414217	0.000220070422535211	0.020733823159401	FALSE	FALSE	FALSE	FALSE	TRUE	FALSE	FALSE	FALSE	TRUE	TRUE	Symbiotic	-8.42156296040099	-3.87598894313269
+15	Fungi.Basidiomycota.Tremellomycetes.Filobasidiales.Piskurozymaceae.Solicoccozyma.Solicoccozyma_terricolaOTU_83	31	7.50485824964612	0.0164533737885318	0.00244768419526312	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	TRUE	TRUE	Transient	-4.10722472927179	-6.01261292785692
+16	Fungi.Ascomycota.Arthoniomycetes.Lichenostigmatales.Phaeococcomycetaceae.Phaeococcomyces.Phaeococcomyces_mexicanusOTU_166	30	8.50683431425653	0.000177709473801255	0.0124495515216484	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	TRUE	TRUE	Symbiotic	-8.63536051076808	-4.3860706790778
+17	Fungi.Ascomycota.Dothideomycetes.Pleosporales.Phaeosphaeriaceae.Phaeosphaeria.NAOTU_73	30	7.8487844578558	0.000198683015440509	0.0108805361478411	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	TRUE	TRUE	Symbiotic	-8.52379989046709	-4.52077976047425
+18	Fungi.Ascomycota.Dothideomycetes.Dothideales.Dothioraceae.unidentified.unidentifiedOTU_58	29	5.58343243467955	0.0018788682581786	0.00932909357806842	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	TRUE	Symbiotic	-6.27708567373974	-4.67461742017481
+19	Fungi.Basidiomycota.Microbotryomycetes.Kriegeriales.Kriegeriaceae.Kriegeria.Kriegeria_eriophoriOTU_9	26	10.0432691796947	0.0415442090635958	0.00587072210967531	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	TRUE	TRUE	TRUE	Transient	-3.18099714011127	-5.13777763572764
