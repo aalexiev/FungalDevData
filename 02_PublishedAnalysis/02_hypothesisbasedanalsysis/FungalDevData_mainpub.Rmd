@@ -44,13 +44,13 @@ seq_dir <- "/Users/alal3493/Documents/Projects/DevelopmentalBorealToad/FungalDev
 #load in starting files
 mapfp_all <- paste0(work_dir,"Allsamps_clean_maptab.txt")
 tabfp_all <- paste0(work_dir,"Allsamps_clean_otutab.txt")
-input_all <- load_taxa_table(tab_fp = tabfp_all, map_fp = mapfp_all) # this file has both toad and environment sample types in it (172 samples)
+input_all <- load_taxa_table(tab_fp = tabfp_all, map_fp = mapfp_all) # this file has both toad and environment sample types in it (169 samples)
 mapfp_t <- paste0(work_dir,"Toad_clean_maptab.txt")
 tabfp_t <- paste0(work_dir,"Toad_clean_otutab.txt")
 input_toad <- load_taxa_table(tab_fp = tabfp_t, map_fp = mapfp_t) # this file only has toad samples in it (124 samples)
 
 # order by life stage
-life_list <- c("Soil", "Sediment", "Water",
+life_list <- c("Sediment", "Water",
                "Eggs.11.15", "Tadpole.20.22",
                "Tadpole.23.25", "Tadpole.25.27",
                "Tadpole.27.29", "Tadpole.29.31",
@@ -58,33 +58,33 @@ life_list <- c("Soil", "Sediment", "Water",
                "Metamorph.40.46", "Subadult", "Adult")
 input_all$map_loaded$Gosner_Stage <-
     factor(input_all$map_loaded$Gosner_Stage,
-           levels=life_list)
+           levels = life_list)
 input_toad$map_loaded$Gosner_Stage <-
     factor(input_toad$map_loaded$Gosner_Stage,
-           levels=life_list)
+           levels = life_list)
 # and order the other column I'll be using as well, where tadpoles are lumped
-samptype_list <- c("Soil", "Sediment", "Water", "Eggs",
+samptype_list <- c("Sediment", "Water", "Eggs",
                    "Tadpole", "Metamorph", "Subadult", "Adult")
 input_all$map_loaded$Life_Stage_Simplified <-
     factor(input_all$map_loaded$Life_Stage_Simplified,
-           levels=samptype_list)
+           levels = samptype_list)
 input_toad$map_loaded$Life_Stage_Simplified <-
     factor(input_toad$map_loaded$Life_Stage_Simplified,
-           levels=samptype_list)
+           levels = samptype_list)
 ```
 
 ```{r}
 # number of total fungal taxa found in all samples
-nrow(input_all$data_loaded) # 2243
-nrow(input_toad$data_loaded) # 1703
+nrow(input_all$data_loaded) # 2156
+nrow(input_toad$data_loaded) # 1760
 
 # top ten taxa on toads and in environment
 toptaxa_all <- return_top_taxa(input = input_all, number_taxa = 10)
 toptaxa_toad <- return_top_taxa(input = input_toad, number_taxa = 10)
-kable(toptaxa_all, caption="Top ten taxa in toad and environment samples") %>% 
+kable(toptaxa_all, caption = "Top ten taxa in toad and environment samples") %>% 
     kable_styling(bootstrap_options = c("striped","bordered"), 
                   full_width = F, position = "left")
-kable(toptaxa_toad, caption="Top ten taxa in toad samples") %>% 
+kable(toptaxa_toad, caption = "Top ten taxa in toad samples") %>% 
     kable_styling(bootstrap_options = c("striped","bordered"), 
                   full_width = F, position = "left")
 ```
@@ -132,9 +132,10 @@ krusk_shan; bonpval_shan
 liferich <- ggplot(input_all$map_loaded, aes(Gosner_Stage, rich)) + 
   geom_boxplot() + xlab("") + 
   ylab("Fungal OTU Richness") + ggtitle("A") +
-  geom_text(x=7,y=194, size=3,
-            label=paste0("KW chi-sq stat=",signif(krusk_rich$statistic, digits=5),
-                         "\n","p=",signif(bonpval_rich, digits=3))) +
+  geom_text(x = 7, y = 194, size = 3,
+            label = paste0("KW chi-sq stat=",signif(krusk_rich$statistic,
+                                                    digits = 5),
+                         "\n","p=",signif(bonpval_rich, digits = 3))) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, colour = "black"),
         axis.text.y = element_text(colour = "black"),
         panel.grid.major = element_blank(),
@@ -146,9 +147,10 @@ liferich <- ggplot(input_all$map_loaded, aes(Gosner_Stage, rich)) +
 lifesimp <- ggplot(input_all$map_loaded, aes(Gosner_Stage, simpson)) + 
   geom_boxplot() + xlab("Sample Type") + 
   ylab("Simpson's Diversity Metric") +  ylim(0,1.2) + ggtitle("B") +
-  geom_text(x=7,y=1.15, size=3,
-            label=paste0("KW chi-sq stat=",signif(krusk_simp$statistic, digits=5),
-                         "\n","p=",signif(bonpval_simp, digits=3))) +
+  geom_text(x = 7, y = 1.15, size = 3,
+            label = paste0("KW chi-sq stat=",signif(krusk_simp$statistic, 
+                                                  digits = 5),
+                         "\n","p=",signif(bonpval_simp, digits = 3))) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, colour = "black"),
         axis.text.y = element_text(colour = "black"),
         panel.grid.major = element_blank(),
@@ -160,9 +162,10 @@ lifesimp <- ggplot(input_all$map_loaded, aes(Gosner_Stage, simpson)) +
 lifeshan <- ggplot(input_all$map_loaded, aes(Gosner_Stage, shannon)) + 
   geom_boxplot() + xlab("") + 
   ylab("Shannon Diversity Index") + ggtitle("C") +
-  geom_text(x=7,y=4.1, size=3,
-            label=paste0("KW chi-sq stat=",signif(krusk_shan$statistic, digits=5),
-                         "\n","p=",signif(bonpval_shan, digits=3))) +
+  geom_text(x = 7, y = 4.1, size = 3,
+            label=paste0("KW chi-sq stat=",signif(krusk_shan$statistic,
+                                                  digits = 5),
+                         "\n","p=",signif(bonpval_shan, digits = 3))) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, colour = "black"),
         axis.text.y = element_text(colour = "black"),
         panel.grid.major = element_blank(),
@@ -172,8 +175,9 @@ lifeshan <- ggplot(input_all$map_loaded, aes(Gosner_Stage, shannon)) +
 
 alpha_panel <- grid.arrange(liferich, lifesimp, lifeshan, ncol = 3)
 alpha_panel
-# ggsave(paste0(work_dir,"Figs_Tables/AllAlphaDiv.png"), alpha_panel, dpi=300,
-#        width=10, height=7)
+# ggsave(paste0(work_dir,"Figs_Tables/AllAlphaDiv.png"), 
+#        alpha_panel, dpi = 300,
+#        width = 10, height = 7)
 ```
 
 # Pairwise OTU richness Stats
@@ -183,7 +187,7 @@ alpha_panel
 
 ```{r}
 # Are pairwise alpha diversities same or different across life stages?
-nlevels(input_all$map_loaded$Gosner_Stage) # 14
+nlevels(input_all$map_loaded$Gosner_Stage) # 13
 cats <- levels(input_all$map_loaded$Gosner_Stage) # define category levels
 cats_pairs <- combn(cats, 2) # make pairs of these
 pvals <- c() # output df for pvalues
@@ -206,7 +210,7 @@ results <- results %>%
   filter(pvalBon <= 0.05) %>%
   filter(pvalFDR <= 0.05) %>% # filter by the two corrected pvals being <= 0.05
   dplyr::select(-pvals) # remove pval column
-# write.table(results, paste0(work_dir, "Figs_Tables/pairedMW_alphadiv.txt"), 
+# write.table(results, paste0(work_dir, "Figs_Tables/pairedMW_alphadiv.txt"),
 #             sep="\t", quote = F, row.names = F)
 ```
 
@@ -214,34 +218,36 @@ results <- results %>%
 ```{r}
 # make color palette
 nlevels(input_all$map_loaded$Life_Stage_Simplified)
-brewer.pal(n = 8, name = "Dark2") # display hexcodes for the pallete I'm using but want to change slightly
-samptype_cols <- c("#666666", "#A6761D", 
+brewer.pal(n = 7, name = "Dark2") # display hexcodes for the pallette I'm using but want to change slightly
+samptype_cols <- c("#A6761D", 
                    "#3a6b94", "#66A61E", 
                    "#E7298A", "#7570B3", 
                    "#D95F02", "#1B9E77")
 
 # make OTU richness figure
 OTUrich <- ggplot(input_all$map_loaded, aes(Gosner_Stage, rich)) + 
-  geom_boxplot(alpha=0.6, outlier.shape=NA, aes(fill=Life_Stage_Simplified)) + xlab("") + 
+  geom_boxplot(alpha = 0.6, outlier.shape = NA, 
+               aes(fill = Life_Stage_Simplified)) + xlab("") + 
   ylab("Fungal OTU Richness") + ggtitle("A") +
-  geom_point(aes(fill=Life_Stage_Simplified), size=3, shape=21, position=position_jitter(
-    width=0.25
+  geom_point(aes(fill = Life_Stage_Simplified), size = 3, shape = 21, 
+             position = position_jitter(
+    width = 0.25
   )) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, colour = "black"),
         axis.text.y = element_text(colour = "black"),
-        axis.title = element_text(size=16),
-        axis.text = element_text(size=14),
-        legend.title = element_text(size=16),
-        legend.text = element_text(size=14),
+        axis.title = element_text(size = 16),
+        axis.text = element_text(size = 14),
+        legend.title = element_text(size = 16),
+        legend.text = element_text(size = 14),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         panel.background = element_blank(),
         axis.line = element_line(colour = "black"),
         plot.title = element_text(size = 30),
-        legend.position="none") +
-  labs(fill="Sample Type") +
-  scale_fill_manual(values=samptype_cols) +
-  scale_x_discrete(labels=c("Soil", "Sediment", "Water",
+        legend.position = "none") +
+  labs(fill = "Sample Type") +
+  scale_fill_manual(values = samptype_cols) +
+  scale_x_discrete(labels = c("Sediment", "Water",
                             "Eggs", "Tadpole (20-22)",
                             "Tadpole (23-25)", "Tadpole (25-27)",
                             "Tadpole (27-29)", "Tadpole (29-31)",
@@ -254,7 +260,7 @@ md_transformed <- t(sqrt(input_all$data_loaded))
 dm <- vegdist(md_transformed, method = "bray")
 
 # run NMDS
-md.nmds <- metaMDS(dm, k = 3, trymax = 1000) #solution reached, stress=0.19
+md.nmds <- metaMDS(dm, k = 3, trymax = 1000) #solution reached, stress=0.195
 
 #prepare NMDS points and values for graphing
 md.nmds.points <- md.nmds$points %>% # take the NMDS points
@@ -264,7 +270,8 @@ md.nmds.points <- md.nmds$points %>% # take the NMDS points
   column_to_rownames(var = "mysamples")
 meta <- input_all$map_loaded %>%
   rownames_to_column("SampleID")
-md.nmds.metadata <- inner_join(x=md.nmds.points, y=meta, by = "SampleID") %>%
+md.nmds.metadata <- inner_join(x = md.nmds.points, y = meta, 
+                               by = "SampleID") %>%
   group_by(Life_Stage_Simplified) %>%
   ungroup() %>%
   dplyr::select(SampleID, MDS1, MDS2, everything()) # select these columns only
@@ -273,7 +280,7 @@ md.nmds.metadata.unq <- md.nmds.metadata %>%
   unique()
 md.nmds.metadata.unq$Life_Stage_Simplified <- 
   factor(md.nmds.metadata.unq$Life_Stage_Simplified, 
-                          levels=samptype_list)
+                          levels = samptype_list)
 
 # get stress value
 stress.md = paste("stress =", round(md.nmds$stress, digits = 4))
@@ -287,20 +294,22 @@ nmds.plot <- ggplot(md.nmds.metadata, aes(x = MDS1, y = MDS2, shape = Type,
                                           colour = Life_Stage_Simplified)) +
   geom_polygon(data = group.chulls, 
                aes(fill=Life_Stage_Simplified), 
-               alpha = 0.15, linetype=0) +
-  geom_point(size=3) +
+               alpha = 0.15, linetype = 0) +
+  geom_point(size = 3) +
   annotate("text", x = Inf, y = Inf, label = stress.md, hjust = 1, vjust = 1) +
   ggtitle("C") + 
-  labs(colour="Sample Type") +
-  scale_colour_manual(values=samptype_cols) +
-  scale_fill_manual(values=samptype_cols) +
-  guides(fill=F, color = guide_legend(order = 1, override.aes=list(shape=15, size=6)), 
+  labs(colour = "Sample Type") +
+  scale_colour_manual(values = samptype_cols) +
+  scale_fill_manual(values = samptype_cols) +
+  guides(fill = F, color = guide_legend(order = 1, 
+                                        override.aes = list(shape = 15, 
+                                                            size = 6)), 
          shape = guide_legend(order = 0)) +
   scale_shape_discrete(name = "", labels = c("Environment", "Toad")) +
-  theme(axis.title = element_text(size=16),
-        axis.text = element_text(size=14),
-        legend.title = element_text(size=16),
-        legend.text = element_text(size=14),
+  theme(axis.title = element_text(size = 16),
+        axis.text = element_text(size = 14),
+        legend.title = element_text(size = 16),
+        legend.text = element_text(size = 14),
         plot.title = element_text(size = 30))
 
 
@@ -316,44 +325,48 @@ kable(PermDisp_life_lump$group) %>%
   kable_styling(bootstrap_options = c("striped","bordered"), 
                 full_width = F, position = "left")
 # write.table(PermDisp_life_lump$group,
-#             paste0(work_dir,"Figs_Tables/PermDisp_life_lump.txt"), sep="\t")
+#             paste0(work_dir,"Figs_Tables/PermDisp_life_lump.txt"), 
+#             sep = "\t")
 Disper1 <- data.frame(life.disper.lump$distances)
 colnames(Disper1) <- "dispers"
 Disper2 <- Disper1 %>%
   rownames_to_column("SampleID") %>%
-  inner_join(y=meta, 
-             by="SampleID")
+  inner_join(y = meta, 
+             by = "SampleID")
 
-disper_bars <- ggplot(data=Disper2, aes(x=Life_Stage_Simplified, y=dispers)) +
-  geom_boxplot(aes(fill=Life_Stage_Simplified), alpha=0.6,outlier.shape=NA) + 
+disper_bars <- ggplot(data = Disper2, aes(x = Life_Stage_Simplified, 
+                                          y = dispers)) +
+  geom_boxplot(aes(fill = Life_Stage_Simplified), alpha = 0.6, 
+               outlier.shape = NA) + 
   ylab("Dispersion") + xlab("") + ggtitle("B") +
-  geom_point(aes(fill=Life_Stage_Simplified), size=3, shape=21, position=position_jitter(
-    width=0.25
+  geom_point(aes(fill = Life_Stage_Simplified), size = 3, shape = 21, position = position_jitter(
+    width = 0.25
   )) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, colour = "black"),
         axis.text.y = element_text(colour = "black"),
-        axis.title = element_text(size=16),
-        axis.text = element_text(size=14),
-        legend.title = element_text(size=16),
-        legend.text = element_text(size=14),
+        axis.title = element_text(size = 16),
+        axis.text = element_text(size = 14),
+        legend.title = element_text(size = 16),
+        legend.text = element_text(size = 14),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         panel.background = element_blank(),
         axis.line = element_line(colour = "black"),
         plot.title = element_text(size = 30)) +
-  labs(fill="Sample Type") +
-  scale_fill_manual(values=samptype_cols)
+  labs(fill = "Sample Type") +
+  scale_fill_manual(values = samptype_cols)
 legend <- arrangeGrob(get_legend(disper_bars))
 disper_bars_noleg <- disper_bars + theme(legend.position = "none")
 
 
 # Put all into paneled graph with annotations and shared legend
 diversity_fig <- ggpubr::ggarrange(arrangeGrob(OTUrich, disper_bars_noleg), 
-                              legend, nmds.plot, ncol=3, 
-               widths=c(4.5,1.5,9))
+                              legend, nmds.plot, ncol = 3, 
+               widths = c(4.5,1.5,9))
 diversity_fig
-ggsave(paste0(work_dir,"Figs_Tables/FungDivFig.png"), diversity_fig, dpi=800,
-       width=16, height=7)
+# ggsave(paste0(work_dir,"Figs_Tables/FungDivFig.png"), diversity_fig, 
+#        dpi = 800,
+#        width = 16, height = 7)
 ```
 
 ## Permanova for the above plot

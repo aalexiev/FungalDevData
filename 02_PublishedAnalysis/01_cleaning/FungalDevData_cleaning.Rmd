@@ -82,6 +82,10 @@ input <- load_taxa_table(tab_fp = tabfp, map_fp = mapfp) # this is an mctoolsr p
 # and do not actually have data associated with them
 input_f <- filter_data(input = input, filter_cat = "Unique_id_marker", 
                       filter_vals = c("BTP_226", "BTP_47")) # 370 samples remain
+
+# filter out soil samples because too low sample count
+input_f2 <- filter_data(input = input_f, filter_cat = "Life_Stage_Simplified",
+                        filter_vals = "Soil") # 367 samples remain
 ```
 
 
@@ -92,23 +96,23 @@ Rarefaction looks at how well we sampled each biom or set of samples. Rarefying 
 ```{r}
 # what should I rarefy to?
 # what about the blanks and controls I had?
-blanks_only <- filter_data(input_f, filter_cat = "Type", keep_vals = c("blank", "control"))
+blanks_only <- filter_data(input_f2, filter_cat = "Type", keep_vals = c("blank", "control"))
 blanks_sorted <- sort(colSums(blanks_only$data_loaded))
 hist(blanks_sorted)
 tail(blanks_sorted)
 # only NTC7 is high, rest are low
 
 # make file with only OTU and their total counts across all samples
-OTU_counts <- filter_data(input_f, filter_cat = "Type", filter_vals = c("blank", "control"))
+OTU_counts <- filter_data(input_f2, filter_cat = "Type", filter_vals = c("blank", "control"))
 OTU_sorted <- sort(colSums(OTU_counts$data_loaded))
-hist(OTU_sorted, breaks = seq(from=0,to=140000,by=1000))
-abline(v=1030, col="red")
+hist(OTU_sorted, breaks = seq(from = 0, to = 140000, by = 1000))
+abline(v = 1030, col = "red")
 # rarefy to 1030 seqs
-input_frar <- single_rarefy(input = input_f, depth = 1030) 
-# 173 samples remain
+input_frar <- single_rarefy(input = input_f2, depth = 1030) 
+# 170 samples remain
 # order by life stages
 order_list <- c("Water", 
-                "Sediment", "Soil", 
+                "Sediment", 
                 "Eggs.11.15", "Tadpole.20.22",
                 "Tadpole.23.25", "Tadpole.25.27",
                 "Tadpole.27.29", "Tadpole.29.31",
@@ -117,28 +121,28 @@ order_list <- c("Water",
                 "NoTemplateControl", "Primer_blank")
 input_frar$map_loaded$Gosner_Stage <- 
     factor(input_frar$map_loaded$Gosner_Stage, 
-           levels=order_list)
+           levels = order_list)
 ```
 
 ```{r}
 # graph rarefaction curves
 # filter out anything less than 1030 since these won't be in the final analysis
 # with life stage simplified so it fits on the graph
-levels(input_frar$map_loaded$Life_Stage_Simplified) # need 9 colors
-colors_list <- c("darkred", "blue", "green", "black", "orange", "purple", "darkgreen", "hotpink", "grey")
+levels(input_frar$map_loaded$Life_Stage_Simplified) # need 8 colors
+colors_list <- c("darkred", "blue", "green", "black", "sienna", "purple", "hotpink", "grey")
 par(xpd = T, mar = par()$mar + c(0,0,0,10))
 rarecurve(sapply(input_frar$data_loaded, 
                  function(x) sapply(split(x,input_frar$map_loaded$Life_Stage_Simplified), sum)),
-          step=1,
-          xlab="Number of sequences sampled",
-          ylab="Number of OTUs",
-          label=F,
+          step = 1,
+          xlab = "Number of sequences sampled",
+          ylab = "Number of OTUs",
+          label = F,
           col = colors_list)
-legend(70000, 200, legend = levels(input_frar$map_loaded$Life_Stage_Simplified), 
-       col=colors_list, lty = 1, lwd = 3)
+legend(60000, 300, legend = levels(input_frar$map_loaded$Life_Stage_Simplified), 
+       col = colors_list, lty = 1, lwd = 3)
 # save via the export button in RStudio, changed dpi in Preview on Mac
 # return par margins to original settings
-par(mar=c(5, 4, 4, 2) + 0.1)
+par(mar = c(5, 4, 4, 2) + 0.1)
 ```
 
 
@@ -155,21 +159,22 @@ df <- as.data.frame(input$map_loaded) # Put sample_data into a ggplot-friendly d
 df$LibrarySize <- colSums(input$data_loaded) # new row with the library size
 df <- df[order(df$LibrarySize),] # order by library size column
 df$Index <- seq(nrow(df)) # make index column to keep the order from above
-ggplot(data=df, aes(x=Index, y=LibrarySize, color=Type)) + geom_point() +
-    geom_hline(yintercept = 1030, col="red") # line is at what I rarefied to
+ggplot(data = df, aes(x = Index, y = LibrarySize, color = Type)) + geom_point() +
+    geom_hline(yintercept = 1030, col = "red") # line is at what I rarefied to
 # "life" is toad samples, "env" is environment samples
 
 # frequency method (uses relative abundance)
 otu_tab <- t(data.matrix(input$data_loaded))
-contamdf.freq <- isContaminant(otu_tab, method="frequency",
-                               conc=input$map_loaded$quant_reading)
+contamdf.freq <- isContaminant(otu_tab, method = "frequency",
+                               conc = input$map_loaded$quant_reading)
 head(contamdf.freq)
 table(contamdf.freq$contaminant) # true = number of contaminants; 23 here
 head(which(contamdf.freq$contaminant)) # the row index of the contaminants (so the highest is the 51st most abundant thing)
 otu_names <- row.names(contamdf.freq)
 i <- which(contamdf.freq$contaminant)
 taxnames <- row.names(contamdf.freq[i,]) # these are the OTU names (rownames) of the contaminants
-plot_frequency(otu_tab, taxnames, conc=input$map_loaded$quant_reading, facet=T) + 
+plot_frequency(otu_tab, taxnames, 
+               conc = input$map_loaded$quant_reading, facet = T) + 
     xlab("DNA Concentration (PicoGreen fluorescent intensity)") 
 # the only two I miiiight not trust of these is OTU_21 and OTU_54 because of the huge variation across the red dotted line (best fit line to determine if contaminant)
 input$taxonomy_loaded["OTU_21",] #this one is a plant-associated microbe, so might not actually be contaminant
@@ -179,12 +184,14 @@ input$taxonomy_loaded["OTU_54",] #this one is an indoor environment microbe, so 
 # try prevalence method (presence/absence)
 # make new column with logical for control or not control
 input$map_loaded$is.neg <- input$map_loaded$Type == "control"
-contamdf.prev <- isContaminant(otu_tab, method="prevalence", neg=input$map_loaded$is.neg)
+contamdf.prev <- isContaminant(otu_tab, method = "prevalence", 
+                               neg = input$map_loaded$is.neg)
 table(contamdf.prev$contaminant) # less things got pulled out
 y <- which(contamdf.prev$contaminant)
 taxnames2 <- row.names(contamdf.prev[y,])
 # did this frequency plot even though it's prevalence because it's more intuitive to check distribution
-plot_frequency(otu_tab, taxnames2, conc=input$map_loaded$quant_reading, facet=T) +
+plot_frequency(otu_tab, taxnames2, 
+               conc = input$map_loaded$quant_reading, facet = T) +
     xlab("DNA Concentration (PicoGreen fluorescent intensity)") 
 
 # compare the two methods
@@ -198,13 +205,13 @@ full_contam_taxlist <- unique(c(taxnames, taxnames2))
 # filter out of rarefied input
 input_frar_clean <- filter_taxa_from_input(input_frar, 
                                            taxa_IDs_to_remove = full_contam_taxlist)
-# 25 taxa removed (some were already removed in past filtering steps)
+# 22 taxa removed (some were already removed in past filtering steps)
 # make a table of all the taxonomic names of these isolates
 input_contams <- filter_taxa_from_input(input_frar, 
                                            taxa_IDs_to_keep = full_contam_taxlist)
 taxons <- input_contams$taxonomy_loaded
-contams_table <- data.frame(OTU_id=rownames(taxons), 
-                            Taxonomy=paste0(taxons$taxonomy1,"; ",taxons$taxonomy2,"; ",taxons$taxonomy3,"; ",taxons$taxonomy4,"; ",taxons$taxonomy5,"; ",taxons$taxonomy6,"; ",taxons$taxonomy7,"; "))
+contams_table <- data.frame(OTU_id = rownames(taxons), 
+                            Taxonomy = paste0(taxons$taxonomy1,"; ",taxons$taxonomy2,"; ",taxons$taxonomy3,"; ",taxons$taxonomy4,"; ",taxons$taxonomy5,"; ",taxons$taxonomy6,"; ",taxons$taxonomy7,"; "))
 kable(contams_table) %>% 
     kable_styling(bootstrap_options = c("striped","bordered"), 
                   full_width = F, position = "left")
@@ -222,7 +229,7 @@ Now I need to filter my data into two useful subsets that I'll be using in futur
 # filter so only life stage data
 input_frar_lifeonly <- filter_data(input = input_frar_clean,
                          filter_cat = "Gosner_Stage",
-                         filter_vals = c("Water", "Sediment", "Soil",
+                         filter_vals = c("Water", "Sediment",
                                          "Primer_blank" ,"NoTemplateControl", "NA"))
 # 124 samples remaining
 # order by life stage
@@ -233,7 +240,7 @@ life_list <- c("Eggs.11.15", "Tadpole.20.22",
                       "Metamorph.40.46", "Subadult", "Adult")
 input_frar_lifeonly$map_loaded$Gosner_Stage <-
     factor(input_frar_lifeonly$map_loaded$Gosner_Stage,
-           levels=life_list)
+           levels = life_list)
 # save this file
 # export_taxa_table(input_frar_lifeonly, paste0(work_dir,"Toad_clean_otutab.txt"),
 #                   paste0(work_dir,"Toad_clean_maptab.txt"))
@@ -242,21 +249,21 @@ input_frar_lifeonly$map_loaded$Gosner_Stage <-
 input_frar_lifeenv <- filter_data(input = input_frar_clean,
                                   filter_cat = "Gosner_Stage",
                                   filter_vals = c("Primer_blank" ,"NoTemplateControl", "NA"))
-# 172 samples remaining
+# 169 samples remaining
 # order by env then life stages
-lifeenv_list2 <- c("Soil", "Sediment", "Water", "Eggs",
+lifeenv_list2 <- c("Sediment", "Water", "Eggs",
                    "Tadpole", "Metamorph", "Subadult", "Adult")
 input_frar_lifeenv$map_loaded$Life_Stage_Simplified <-
     factor(input_frar_lifeenv$map_loaded$Life_Stage_Simplified,
-           levels=lifeenv_list2)
+           levels = lifeenv_list2)
 # export_taxa_table(input_frar_lifeenv, paste0(work_dir,"Allsamps_clean_otutab.txt"),
 #                   paste0(work_dir,"Allsamps_clean_maptab.txt"))
 
 # number of sequences total after rarefaction
-sum(colSums(input_frar_lifeenv$data_loaded)) # 171724
+sum(colSums(input_frar_lifeenv$data_loaded)) # 168627
 
 # number of OTU's in this file
-nrow(input_frar_lifeenv$taxonomy_loaded) # 2243
+nrow(input_frar_lifeenv$taxonomy_loaded) # 2156
 
 # sample sizes table
 samp_sizes <- input_frar_lifeenv$map_loaded %>%
@@ -308,14 +315,14 @@ dm_mean <- calc_mean_dissimilarities(dm_lifeenv,
                                     return_map = T)
 dendro_x <- mctoolsr::plot_dendrogram(dm_mean$dm_loaded, 
                                       dm_mean$map_loaded,
-                                      labels="Gosner_Stage",
+                                      labels = "Gosner_Stage",
                                       color_by = "Life_Stage_Simplified",
                                       method = "average") +
-  labs(color="Sample Type")
+  labs(color = "Sample Type")
 dendro_x
 # result: seems like tadpoles can either all be lumped together or into EarlyandMid/Late clumps
 
 # make paneled figure with table and graph
-grid.arrange(tableGrob(PW_PERM_lumpq), dendro_x, ncol=2)
+grid.arrange(tableGrob(PW_PERM_lumpq), dendro_x, ncol = 2)
 # saved through export button in Rstudio
 ```
