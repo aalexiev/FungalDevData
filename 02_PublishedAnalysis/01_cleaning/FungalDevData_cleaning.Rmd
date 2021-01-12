@@ -108,7 +108,7 @@ OTU_sorted <- sort(colSums(OTU_counts$data_loaded))
 hist(OTU_sorted, breaks = seq(from = 0, to = 140000, by = 1000))
 abline(v = 1030, col = "red")
 # rarefy to 1030 seqs
-input_frar <- single_rarefy(input = input_f2, depth = 1030) 
+input_frar <- single_rarefy(input = input_f2, depth = 1030)
 # 170 samples remain
 # order by life stages
 order_list <- c("Water", 
@@ -326,3 +326,124 @@ dendro_x
 grid.arrange(tableGrob(PW_PERM_lumpq), dendro_x, ncol = 2)
 # saved through export button in Rstudio
 ```
+
+```{r}
+# check whether dispersion is separate between early and late tadpoles
+
+# PERMDisp on Gosner stage, strata=site
+#create B-C species abundance matrix
+input_all_rel <- convert_to_relative_abundances(input_frar_lifeenv)
+BC <- calc_dm(input_all_rel$data_loaded, method = "bray")
+life.disper.lump <- betadisper(BC, input_frar_lifeenv$map_loaded$Gosner_Stage)
+permutest(life.disper.lump)
+PermDisp_life_lump <- TukeyHSD(life.disper.lump) #Tukey post-hoc
+kable(PermDisp_life_lump$group) %>%
+  kable_styling(bootstrap_options = c("striped","bordered"), 
+                full_width = F, position = "left")
+# write.table(PermDisp_life_lump$group,
+#             paste0(work_dir,"Figs_Tables/PermDisp_sepTads.txt"),
+#             sep = "\t")
+
+# dispersion graph
+Disper1 <- data.frame(life.disper.lump$distances)
+colnames(Disper1) <- "dispers"
+meta <- input_frar_lifeenv$map_loaded %>%
+  rownames_to_column("SampleID")
+Disper2 <- Disper1 %>%
+  rownames_to_column("SampleID") %>%
+  inner_join(y = meta, 
+             by = "SampleID")
+
+disper_bars <- ggplot(data = Disper2, aes(x = Life_Stage_Simplified, 
+                                          y = dispers)) +
+  geom_boxplot(alpha = 0.6, 
+               outlier.shape = NA) + 
+  ylab("Dispersion") + xlab("") +
+  geom_point(aes(fill = Gosner_Stage), size = 3, shape = 21, position = position_jitter(
+    width = 0.25
+  )) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, colour = "black"),
+        axis.text.y = element_text(colour = "black"),
+        axis.title = element_text(size = 16),
+        axis.text = element_text(size = 14),
+        legend.title = element_text(size = 16),
+        legend.text = element_text(size = 14),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black"),
+        plot.title = element_text(size = 30)) +
+  labs(fill = "Sample Type")
+disper_bars
+# ggsave(paste0(work_dir,"Figs_Tables/disper_bars_sepTads.png"),
+#        disper_bars, dpi = 300,
+#        width = 10, height = 7)
+```
+
+
+## Dropped samples
+
+Next, I'm making a graph showing where certain sample types fell out in the various processing steps.
+
+```{r}
+# this is a file of each sample and where it dropped out of analysis
+drops <- read.delim("../02_PublishedAnalysis/Figs_Tables/Metadata_dropouts_R.txt")
+
+#reorder the factors
+all_sampletypes <- c("Upland_Soil", "Sediment", "Water", "Egg", "Tadpole", "Metamorph", "Subadult", "Adult", "Mouth", "Tadpole_Dead", "Glove", "Sterile_water", "NoTemplateControl")
+drops$Life_Stage_Simplified <- factor(drops$Life_Stage_Simplified, 
+                                      levels = all_sampletypes)
+madetosteplist <- c("noDNA", "filtSeq", "filtR", "Final")
+drops$Made_to_step <- factor(drops$Made_to_step, levels = madetosteplist)
+
+
+#make graph
+drop_graph <- ggplot(drops, aes(fill = Life_Stage_Simplified, 
+                                x = Made_to_step)) +
+  geom_bar(position = "dodge", stat = "count") +
+  labs(fill = "Sample Type", x = "Reasons for samples dropping out",
+       y = "Count") +
+  scale_x_discrete(labels = c("PCR did not amplify target gene",
+                            "Filtered during sequence processing 
+                            (low reads or quality)",
+                            "Filtered during R analysis 
+                            (some sample types not useful 
+                            for answering hypotheses)",
+                            "Final dataset")) +
+  theme(axis.text.x = element_text(angle = 0, hjust = 0.5, size = 14),
+        axis.title = element_text(size = 16),
+        axis.text.y = element_text(size = 14),
+        legend.text = element_text(size = 14),
+        legend.title = element_text(size = 16))
+drop_graph
+# ggsave(paste0(work_dir,"Figs_Tables/drop_graph_V1.jpg"), drop_graph, 
+#        dpi = 300, width = 21, height = 10)
+
+#alternate version of graph
+drop_graph2 <- ggplot(drops, aes(fill = Made_to_step, 
+                                x = Life_Stage_Simplified)) +
+  geom_bar(position = "dodge", stat = "count") +
+  labs(fill = "Reasons for samples dropping out", x = "Sample Type",
+       y = "Count") +
+  scale_fill_discrete(labels = c("PCR did not amplify target gene",
+                            "Filtered during sequence processing",
+                            "Filtered during R analysis",
+                            "Final dataset")) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 14),
+        axis.title = element_text(size = 16),
+        axis.text.y = element_text(size = 14),
+        legend.text = element_text(size = 14),
+        legend.title = element_text(size = 16))
+drop_graph2
+# ggsave(paste0(work_dir,"Figs_Tables/drop_graph_V2.jpg"), drop_graph2, 
+#        dpi = 300, width = 21, height = 10)
+```
+
+
+```{r}
+# save R workspace
+# save.image(file = paste0(work_dir,"01_cleaning/FungalDevData_cleaning.RData"))
+```
+
+
+
