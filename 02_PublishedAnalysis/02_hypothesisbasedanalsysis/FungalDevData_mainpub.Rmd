@@ -479,7 +479,9 @@ To answer this question, I'm using ANCOM, an indicator species analysis for micr
 ## Run ANCOM
 ```{r}
 # Ancom needs Sample.ID to be the header starting at A1, which means changing it in both files and transposing the taxa table.
-# export_taxa_table(input = input_all, "taxa_table_ancom.txt", "map_ancom.txt")
+# export_taxa_table(input = input_all,
+#                   paste0(work_dir,"02_hypothesisbasedanalsysis/taxa_table_ancom.txt"), 
+#                   paste0(work_dir,"02_hypothesisbasedanalsysis/map_ancom.txt"))
 # Did changes in excel, and changed OTU ID's to have the taxonomy and OTU # (for future reference)
 
 # re-read in clean files
@@ -490,8 +492,10 @@ map_ancom <- read.delim(paste0(work_dir,"02_hypothesisbasedanalsysis/map_ancom.t
 
 # source the code, downloaded from: https://github.com/mech3132/MSC_code/blob/master/ANCOM_updated_code_MYC.R
 source("/Users/alal3493/Documents/Reference_Info/ANCOM_MYC/ANCOM_updated_code_MYC_AA.R")
+```
 
-#   1) using just sample type as life or env
+1) ANCOM run using sample type as toad or environmental samples
+```{r}
 # run ancom with parameters for no repeated data, no adjustment (so it'll use a Wilcoxon test)
 comparison_test_lifeenv <- ANCOM.main.myc(OTUdat = OTU_ancom,
                                       Vardat = map_ancom,
@@ -513,15 +517,29 @@ comparison_test_lifeenv$PLot.zeroes
 comparison_test_lifeenv$Plot.volcano
 comparison_test_lifeenv$Plot.volcano.0.9
 # this helps you determine if the critical w was chosen correctly. We want the valley between a bimodal distribution, in theory.
-comparison_test_lifeenv$Plot.critical.w 
-# I think W=~20 actually would be better, especially with the clumping of the points in the previous plots. I'll take this into account in the write out file.
+comparison_test_lifeenv$Plot.critical.w
+# I think W=50 is good since it is very stringent, especially with the clumping of the points in the previous plots.
 # save(comparison_test_lifeenv,
-#      file=paste0(work_dir,"02_hypothesisbasedanalsysis/ANCOM_lifeenv.RData"),
+#      file = paste0(work_dir,"02_hypothesisbasedanalsysis/ANCOM_lifeenv.RData"),
 #      envir = .GlobalEnv)
+# write.table(comparison_test_lifeenv$W.taxa, paste0(work_dir,"02_hypothesisbasedanalsysis/ANCOMlifeenv_taxabunds.txt"), sep="\t", quote=F)
+```
 
-#   2) ANCOM so that each life stage gets compared individually to each environmental sample type. Caveat: this uses a Kruskall-Wallis test so it's not a pairwise comparison (i.e. it won't identify OTU's that are different between e.g. water and tadpole)
-comparison_test_lifestages <- ANCOM.main.myc(OTUdat = OTU_ancom,
-                                      Vardat = map_ancom,
+2) ANCOM comparing life stages to each other, no environmental samples at all.
+```{r}
+# filter and prep files in ANCOM format
+# Mapping file filtered
+mf_temp <- map_ancom %>%
+  filter(Life_Stage_Simplified %in% list_life)
+# OTU file filtered
+otu_temp <- input_toad$data_loaded[ , which(colnames(input_toad$data_loaded) %in% mf_temp[ , 1])]
+# Transpose/ANCOM formatting
+otu_temp_t <- as.data.frame(t(otu_temp)) %>%
+  rownames_to_column("Sample.ID")
+
+# run ANCOM, this will use a Kruskall Wallis test
+comparison_test_lifestages <- ANCOM.main.myc(OTUdat = otu_temp_t,
+                                      Vardat = mf_temp,
                                       adjusted = F,
                                       repeated = F,
                                       main.var = "Life_Stage_Simplified",
@@ -532,7 +550,20 @@ comparison_test_lifestages <- ANCOM.main.myc(OTUdat = OTU_ancom,
                                       multcorr = 2,
                                       sig = 0.05,
                                       prev.cut = 0.90)
-# write.table(comparison_test_lifestages$W.taxa, paste0(work_dir,"02_hypothesisbasedanalsysis/indic_taxabundsnew.txt"), sep="\t", quote=F)
+
+# This tells you if your data has a lot of zeroes/skew, as most microbial data do.
+# everything below the red line gets removed.
+comparison_test_lifestages$PLot.zeroes
+# This tells you which (colored) OTU's have a high effect size and significance
+comparison_test_lifestages$Plot.volcano
+comparison_test_lifestages$Plot.volcano.0.9
+# this helps you determine if the critical w was chosen correctly. We want the valley between a bimodal distribution, in theory.
+comparison_test_lifestages$Plot.critical.w
+# I think W=20 is suggested.
+# save(comparison_test_lifestages,
+#      file = paste0(work_dir,"02_hypothesisbasedanalsysis/ANCOM_lifestage.RData"),
+#      envir = .GlobalEnv)
+# write.table(comparison_test_lifestages$W.taxa, paste0(work_dir,"02_hypothesisbasedanalsysis/ANCOMlifestage_taxabunds.txt"), sep="\t", quote=F)
 ```
 
 ## Graph Volcano plot
@@ -541,14 +572,14 @@ comparison_test_lifestages <- ANCOM.main.myc(OTUdat = OTU_ancom,
 
 # make a volcano plot showing the associated microbes
 W_frame <- comparison_test_lifeenv$W.taxa %>%
-  mutate(Enriched = case_when(W_stat < 26 ~ "Transient, not significant",
+  mutate(Enriched = case_when(W_stat < 50 ~ "Transient, not significant",
                               env_relAbund > life_relAbund ~ "Transient",
                               TRUE ~ "Symbiotic"))
 
-yint = 26-(26-18)/2 # want to put interept between 18 and 26 because W=26+ is significant and 18 and less is not
+yint = 26 - (26 - 18)/2 # want to put interept between 18 and 26 because W=26+ is significant and 18 and less is not
 # figure out order of ecol for legend
 Ecol_list <- c("Symbiotic", "Transient", "Transient, not significant")
-W_frame$Enriched <- factor(W_frame$Enriched, levels=Ecol_list)
+W_frame$Enriched <- factor(W_frame$Enriched, levels = Ecol_list)
 # write.table(W_frame,
 #             paste0(work_dir,"02_hypothesisbasedanalsysis/indic_taxabunds_lifeenv.txt"),
 #             sep="\t", quote=F)
