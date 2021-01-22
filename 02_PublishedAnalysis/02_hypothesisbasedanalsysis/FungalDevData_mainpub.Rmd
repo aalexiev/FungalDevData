@@ -525,10 +525,53 @@ comparison_test_lifeenv$Plot.critical.w
 # write.table(comparison_test_lifeenv$W.taxa, paste0(work_dir,"02_hypothesisbasedanalsysis/ANCOMlifeenv_taxabunds.txt"), sep="\t", quote=F)
 ```
 
-2) ANCOM comparing life stages to each other, no environmental samples at all.
+2) ANCOM comparing each individual life stage to each environmental type.
+```{r}
+list_env <- c("Sediment","Soil","Water")
+list_life <- c("Eggs","Tadpoles","Metamorphs","Subadults","Adults")
+
+ALL_PAIRWISE <- list()
+for (e in list_env) {
+    for (l in list_life) {
+        tryCatch({
+                  # Mapping file filtered
+                  mf_temp <- map_ancom %>%
+                  filter(Life_Stage_Simplified %in% c(e, l))
+                  # OTU file filtered
+                  otu_temp <- input_all$data_loaded[ , which(colnames(input_all$data_loaded) %in% mf_temp[ , 1])]
+                  # Transpose/ANCOM formatting
+                  otu_temp_t <- as.data.frame(t(otu_temp)) %>%
+                                rownames_to_column("Sample.ID")
+                  mf_temp$Sample.ID
+                  mf_temp$Type
+        
+                  colSums(otu_temp_t[,-1])
+        
+                  ALL_PAIRWISE[[paste0(e,"_",l)]] <- ANCOM.main.myc(OTUdat = otu_temp_t,
+                                                                    Vardat = mf_temp,
+                                                                    adjusted = F,
+                                                                    repeated = F,
+                                                                    main.var = "Type",
+                                                                    adj.formula = NULL,
+                                                                    repeat.var = NULL,
+                                                                    longitudinal = F,
+                                                                    random.formula = NULL,
+                                                                    multcorr = 2,
+                                                                    sig = 0.05,
+                                                                    prev.cut = 0.9)
+        }, error = function(e){cat("ERROR: ",conditionMessage(e), "\n")})
+    }
+}
+
+# Calling sediment egg
+ALL_PAIRWISE$Sediment_Eggs$Plot.volcano.0.9
+
+```
+
 ```{r}
 # filter and prep files in ANCOM format
 # Mapping file filtered
+list_life <- c("Eggs","Tadpole","Metamorph","Subadult","Adult")
 mf_temp <- map_ancom %>%
   filter(Life_Stage_Simplified %in% list_life)
 # OTU file filtered
@@ -566,108 +609,66 @@ comparison_test_lifestages$Plot.critical.w
 # write.table(comparison_test_lifestages$W.taxa, paste0(work_dir,"02_hypothesisbasedanalsysis/ANCOMlifestage_taxabunds.txt"), sep="\t", quote=F)
 ```
 
-```{r}
-#still using a Wilcoxon test but "for" loop will go through all the variations of pairs
-
-#make lists of env and life variables that will each pair with each other
-#I want each one of env to pair with each one of life
-list_env <- c("Sediment","Water")
-list_life <- c("Eggs","Tadpole","Metamorph","Subadult","Adult")
-
-ALL_PAIRWISE <- list()
-for (e in list_env) {
-    for (l in list_life) {
-        tryCatch({e = "Sediment"
-                  l = "Tadpole"
-                  # Mapping file filtered
-                  mf_temp <- map_ancom %>%
-                  filter(Life_Stage_Simplified %in% c(e, l))
-                  # OTU file filtered
-                  otu_temp <- input_all$data_loaded[ , which(colnames(input_all$data_loaded) %in% mf_temp[ , 1])]
-                  # Transpose/ANCOM formatting
-                  otu_temp_t <- as.data.frame(t(otu_temp)) %>%
-                                rownames_to_column("Sample.ID")
-                  mf_temp$Sample.ID
-                  mf_temp$Type
-        
-                  colSums(otu_temp_t[,-1])
-        
-                  ALL_PAIRWISE[[paste0(e,"_",l)]] <- ANCOM.main.myc(OTUdat = otu_temp_t,
-                                                                    Vardat = mf_temp,
-                                                                    adjusted = F,
-                                                                    repeated = F,
-                                                                    main.var = "Type",
-                                                                    adj.formula = NULL,
-                                                                    repeat.var = NULL,
-                                                                    longitudinal = F,
-                                                                    random.formula = NULL,
-                                                                    multcorr = 2,
-                                                                    sig = 0.05,
-                                                                    prev.cut = 0.10)
-        }, error = function(e){cat("ERROR: ",conditionMessage(e), "\n")})
-    }
-}
-
-# Calling sediment egg
-ALL_PAIRWISE$Sediment_Eggs$Plot.volcano.0.9
-
-
-
-comparison_test_lifestages <- ANCOM.main.myc(OTUdat = OTU_ancom,
-                                      Vardat = map_ancom,
-                                      adjusted = F,
-                                      repeated = F,
-                                      main.var = "Life_Stage_Simplified",
-                                      adj.formula = NULL,
-                                      repeat.var = NULL,
-                                      longitudinal = F,
-                                      random.formula = NULL,
-                                      multcorr = 2,
-                                      sig = 0.05,
-                                      prev.cut = 0.90)
-
-comparison_test_lifeenv$PLot.zeroes
-comparison_test_lifeenv$Plot.volcano.0.9
-comparison_test_lifeenv$Plot.critical.w 
-# I think W=50 is good since it is very stringent, especially with the clumping of the points in the previous plots.
-
-# save(comparison_test_lifestages,
-#      file = paste0(work_dir,"02_hypothesisbasedanalsysis/ANCOM_lifeenv.RData"),
-#      envir = .GlobalEnv)
-# write.table(comparison_test_lifestages$W.taxa, paste0(work_dir,"02_hypothesisbasedanalsysis/indic_taxabundsnew.txt"), sep="\t", quote=F)
-```
-
 ## Graph Volcano plot
+- environment vs. toad samples
 ```{r}
 # load(file=paste0(work_dir,"02_hypothesisbasedanalsysis/ANCOM_lifeenv.RData"))
 
 # make a volcano plot showing the associated microbes
 W_frame <- comparison_test_lifeenv$W.taxa %>%
-  mutate(Enriched = case_when(W_stat < 26 ~ "Transient, not significant",
-                              env_relAbund > life_relAbund ~ "Transient",
+  mutate(Enriched = case_when(W_stat < 40 ~ "Transient, not significant",
+                              Environment_relAbund > Toad_relAbund ~ "Transient",
                               TRUE ~ "Symbiotic"))
 
-yint = 26-(26-18)/2 # want to put interept between 18 and 26 because W=26+ is significant and 18 and less is not
 # figure out order of ecol for legend
 Ecol_list <- c("Symbiotic", "Transient", "Transient, not significant")
-W_frame$Enriched <- factor(W_frame$Enriched, levels=Ecol_list)
+W_frame$Enriched <- factor(W_frame$Enriched, levels = Ecol_list)
 # write.table(W_frame,
 #             paste0(work_dir,"02_hypothesisbasedanalsysis/indic_taxabunds_lifeenv.txt"),
 #             sep="\t", quote=F)
 
 # graph volcano plot
 volcano.plot <- ggplot(W_frame) +
-  geom_point(aes(x=W_f, y=W_stat, color=Enriched)) +
+  geom_point(aes(x = W_f, y = W_stat, color = Enriched)) +
   xlab("CLR F statistic (Effect size)") +
   ylab("W statistic") +
   labs(color = "Putative host relationship") +
-  scale_color_manual(values=c("#56B4E9", "#CC79A7", "#000000")) + 
-  geom_hline(mapping=aes(yintercept=yint), col="red", lty=2)
+  scale_color_manual(values = c("#56B4E9", "#CC79A7", "#000000")) + 
+  geom_hline(mapping = aes(yintercept = 40), col = "red", lty = 2)
 volcano.plot
 # ggsave(paste0(work_dir,"Figs_Tables/volcano_plot_color.png"),
 #        volcano.plot, dpi=400, width=7, height=5)
 ```
 
+- toad only, comparing the life stages
+```{r}
+# load(file=paste0(work_dir,"02_hypothesisbasedanalsysis/ANCOM_lifestage.RData"))
+
+# make a volcano plot showing the associated microbes
+W_frame_ls <- comparison_test_lifestages$W.taxa %>%
+  mutate(Enriched = case_when(W_stat < 20 ~ "Transient, not significant",
+                              Environment_relAbund > Toad_relAbund ~ "Transient",
+                              TRUE ~ "Symbiotic"))
+
+yint = 26 - (26 - 18)/2 # want to put intercept between 18 and 26 because W=26+ is significant and 18 and less is not
+# figure out order of ecol for legend
+Ecol_list <- c("Symbiotic", "Transient", "Transient, not significant")
+W_frame$Enriched <- factor(W_frame$Enriched, levels = Ecol_list)
+# write.table(W_frame,
+#             paste0(work_dir,"02_hypothesisbasedanalsysis/indic_taxabunds_lifeenv.txt"),
+#             sep="\t", quote=F)
+
+# graph volcano plot
+volcano.plot <- ggplot(W_frame) +
+  geom_point(aes(x = W_f, y = W_stat, color = Enriched)) +
+  xlab("CLR F statistic (Effect size)") +
+  ylab("W statistic") +
+  labs(color = "Putative host relationship") +
+  scale_color_manual(values = c("#56B4E9", "#CC79A7", "#000000")) + 
+  geom_hline(mapping = aes(yintercept = 40), col = "red", lty = 2)
+volcano.plot
+# ggsave(paste0(work_dir,"Figs_Tables/volcano_plot_color.png"),
+#        volcano.plot, dpi=400, width=7, height=5)
 
 ## A relative abundance plot using the data
 ```{r}
