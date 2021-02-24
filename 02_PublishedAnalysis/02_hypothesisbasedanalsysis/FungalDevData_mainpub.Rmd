@@ -78,6 +78,11 @@ input_toad$map_loaded$Life_Stage_Simplified <-
 nrow(input_all$data_loaded) # 2156
 nrow(input_toad$data_loaded) # 1760
 
+# total number of sequences
+input_sums <- input_all$data_loaded
+input_sums$rowsums <- rowSums(input_sums)
+colSums(input_sums) # 168627 seqs
+
 # top ten taxa on toads and in environment
 toptaxa_all <- return_top_taxa(input = input_all, number_taxa = 10)
 toptaxa_toad <- return_top_taxa(input = input_toad, number_taxa = 10)
@@ -495,8 +500,8 @@ source("/Users/alal3493/Documents/Reference_Info/ANCOM_MYC/ANCOM_updated_code_MY
 1) ANCOM run using sample type as toad or environmental samples
 ```{r}
 # run ancom with parameters for no repeated data, no adjustment (so it'll use a Wilcoxon test)
-comparison_test_lifeenv <- ANCOM.main.myc(OTUdat = otu_ancom_lifeenv_t,
-                                      Vardat = mf_ancom_lifeenv,
+comparison_test_lifeenv <- ANCOM.main.myc(OTUdat = OTU_ancom,
+                                      Vardat = map_ancom,
                                       adjusted = F,
                                       repeated = F,
                                       main.var = "Type",

@@ -1,3 +1,3 @@
 # README
 
-This data is associated with the paper "A Spectrum of Symbiosis: Identifying putative host-associated symbiont fungi from in an amphibian host system."
+This data is associated with the paper "Identifying putative symbiont fungi from whole community data in an amphibian host system."
