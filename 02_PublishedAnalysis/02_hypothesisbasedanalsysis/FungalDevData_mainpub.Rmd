@@ -630,6 +630,8 @@ volcano.plot
 
 - Sediment vs. egg volcano plot
 ```{r}
+# load(paste0(work_dir, "02_hypothesisbasedanalsysis/FungalDevData_mainpub_workspace.RData"))
+
 # make a volcano plot showing the associated microbes
 W_frame_se <- ALL_PAIRWISE$Sediment_Eggs$W.taxa %>%
   mutate(Enriched = case_when(W_stat < 123 | W_f < 10 ~ "Transient, not significant",
@@ -647,7 +649,7 @@ W_frame_se$Enriched <- factor(W_frame_se$Enriched, levels = Ecol_list)
 volcano.plot.se <- ggplot(W_frame_se) +
   geom_point(aes(x = W_f, y = W_stat, color = Enriched)) +
   xlab("CLR F statistic (Effect size)") +
-  ylab("W statistic") +
+  ylab("W statistic (Signficance)") +
   labs(color = "Putative host relationship") +
   scale_color_manual(values = c("#56B4E9", "#CC79A7", "#000000")) + 
   geom_hline(mapping = aes(yintercept = 123), col = "red", lty = 2) + 
@@ -676,7 +678,7 @@ W_frame_we$Enriched <- factor(W_frame_we$Enriched, levels = Ecol_list)
 volcano.plot.we <- ggplot(W_frame_we) +
   geom_point(aes(x = W_f, y = W_stat, color = Enriched)) +
   xlab("CLR F statistic (Effect size)") +
-  ylab("W statistic") +
+  ylab("W statistic (Significance)") +
   labs(color = "Putative host relationship") +
   scale_color_manual(values = c("#56B4E9", "#000000")) + 
   geom_hline(mapping = aes(yintercept = 35), col = "red", lty = 2) + 
